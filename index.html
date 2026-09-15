@@ -53,7 +53,7 @@
         /* 電腦版 (>= 768px) 雙欄排版 */
         @media (min-width: 768px) {
             .calc-card {
-                max-width: 820px;
+                max-width: 840px;
                 padding: 24px;
             }
             .calc-body {
@@ -230,6 +230,7 @@
 
         .seg-group {
             display: flex;
+            flex-wrap: wrap;
             background: #e9ecef;
             padding: 2px;
             border-radius: 6px;
@@ -237,14 +238,16 @@
         }
 
         .seg-btn {
-            flex: 1;
-            padding: 7px 2px;
+            flex: 1 1 auto;
+            min-width: 44px;
+            padding: 6px 2px;
             border: none;
             background: transparent;
-            font-size: 12px;
+            font-size: 11.5px;
             border-radius: 4px;
             cursor: pointer;
             text-align: center;
+            white-space: nowrap;
         }
 
         .seg-btn.active {
@@ -355,7 +358,8 @@
                 </div>
                 <div class="stock-chips" id="stockChips"></div>
                 <div class="stock-search-box">
-                    <input type="text" id="symbolInput" placeholder="輸入代號或公司名稱 (如: 2330 或 台積電)" onfocus="this.select()" onkeypress="if(event.key==='Enter') searchCustomStock()">
+                    <input type="text" id="symbolInput" list="stockList" placeholder="輸入代號或公司名稱 (如: 2330 或 台積電)" onfocus="this.select()" oninput="onStockInput(this.value)" onkeypress="if(event.key==='Enter') searchCustomStock()">
+                    <datalist id="stockList"></datalist>
                     <button type="button" class="stock-search-btn" onclick="searchCustomStock()">查詢價格</button>
                 </div>
                 <div class="stock-status" id="stockStatus"></div>
@@ -382,11 +386,14 @@
                 </div>
             </div>
 
+            <!-- 券商折數 (擴充為 6 個選項：0折、1.68折、2折、2.5折、2.8折、6折) -->
             <div class="form-group">
                 <label>券商手續費折數</label>
                 <div class="seg-group" id="discountGroup">
                     <button type="button" class="seg-btn" onclick="setDiscount(0, this)">0折(免)</button>
                     <button type="button" class="seg-btn" onclick="setDiscount(1.68, this)">1.68折</button>
+                    <button type="button" class="seg-btn" onclick="setDiscount(2, this)">2折</button>
+                    <button type="button" class="seg-btn" onclick="setDiscount(2.5, this)">2.5折</button>
                     <button type="button" class="seg-btn active" onclick="setDiscount(2.8, this)">2.8折</button>
                     <button type="button" class="seg-btn" onclick="setDiscount(6, this)">6折</button>
                 </div>
@@ -418,7 +425,6 @@
         <div class="result-section">
             <div class="result-box">
                 <div>
-                    <!-- 新增標題：損益平衡計算機 -->
                     <div class="result-title">⚖️ 損益平衡計算機</div>
 
                     <div class="summary-row">
@@ -472,6 +478,8 @@
         { code: '00713', name: '元大台灣高息低波', p: 57 }, { code: '006208', name: '富邦台50', p: 105 }
     ];
 
+    const knownDiscounts = [0, 1.68, 2, 2.5, 2.8, 6];
+
     let currentUnit = 'sheet';
     let currentDiscount = 2.8;
     let currentTaxRate = 0.003;
@@ -479,25 +487,22 @@
     window.onload = async function() {
         renderHotStocks();
         await loadStockJson();
+        populateDatalist();
 
         let savedDiscount = localStorage.getItem('tw_discount');
         if (savedDiscount !== null) {
             let val = parseFloat(savedDiscount);
-            let btnIndex = -1;
-            if (val === 0) btnIndex = 0;
-            else if (val === 1.68) btnIndex = 1;
-            else if (val === 2.8) btnIndex = 2;
-            else if (val === 6) btnIndex = 3;
+            let btnIndex = knownDiscounts.indexOf(val);
 
             let btns = document.querySelectorAll('#discountGroup .seg-btn');
-            if (btnIndex !== -1) {
+            if (btnIndex !== -1 && btns[btnIndex]) {
                 setDiscount(val, btns[btnIndex]);
             } else {
                 document.getElementById('customDiscount').value = val;
                 onCustomDiscountInput();
             }
         } else {
-            setDiscount(2.8, document.querySelectorAll('#discountGroup .seg-btn')[2]);
+            setDiscount(2.8, document.querySelectorAll('#discountGroup .seg-btn')[4]);
         }
 
         if (localStorage.getItem('tw_minFee')) {
@@ -513,8 +518,35 @@
             let data = await res.json();
             stockData = data.stocks || {};
             updatedAt = data.updated_at || '';
-            // 不在畫面上顯示「提示：全台股資料庫已就緒」
-        } catch (e) {}
+            populateDatalist();
+        } catch (e) {
+            populateDatalist();
+        }
+    }
+
+    // 填充 HTML5 Datalist 下拉選單
+    function populateDatalist() {
+        let datalist = document.getElementById('stockList');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        
+        let pool = Object.keys(stockData).length > 0 ? 
+            Object.keys(stockData).map(k => ({ code: k, name: stockData[k].n })) : stockPool;
+
+        pool.forEach(stk => {
+            let opt = document.createElement('option');
+            opt.value = `${stk.code} ${stk.name}`;
+            datalist.appendChild(opt);
+        });
+    }
+
+    // 輸入即時比對（從 Datalist 下拉選項選取時直接帶入）
+    function onStockInput(val) {
+        val = val.trim();
+        let match = val.match(/^(\d+[A-Za-z]?)/);
+        if (match && (stockData[match[1]] || stockPool.some(s => s.code === match[1]))) {
+            selectStock(match[1]);
+        }
     }
 
     function drawGachaStock() {
@@ -561,9 +593,10 @@
         let statusEl = document.getElementById('stockStatus');
         let inputEl = document.getElementById('symbolInput');
         
-        inputEl.value = code;
-
         let target = stockData[code];
+        let name = target ? target.n : (stockPool.find(s=>s.code===code)?.name || fallbackName || code);
+        inputEl.value = `${code} ${name}`;
+
         let dateStr = updatedAt ? updatedAt.split(' ')[0] : '';
         let dateTag = dateStr ? `[${dateStr}] ` : '';
 
@@ -588,23 +621,23 @@
         calculate();
     }
 
-    // 搜尋功能升級：支援「股票代號」與「公司名稱」搜尋
     function searchCustomStock() {
-        let val = document.getElementById('symbolInput').value.trim();
-        if (!val) return;
+        let rawVal = document.getElementById('symbolInput').value.trim();
+        if (!rawVal) return;
+
+        let codeMatch = rawVal.match(/^(\d+[A-Za-z]?)/);
+        let val = codeMatch ? codeMatch[1] : rawVal;
 
         let statusEl = document.getElementById('stockStatus');
 
-        // 1. 若為代號，精確比對
         if (stockData[val]) {
             selectStock(val);
             return;
         }
 
-        // 2. 名稱比對 (stockData)
         let foundCode = Object.keys(stockData).find(code => {
             let name = stockData[code].n;
-            return name === val || name.includes(val);
+            return name === rawVal || name.includes(rawVal);
         });
 
         if (foundCode) {
@@ -612,15 +645,13 @@
             return;
         }
 
-        // 3. 名稱/代號比對 (stockPool 備援庫)
-        let poolItem = stockPool.find(s => s.code === val || s.name === val || s.name.includes(val));
+        let poolItem = stockPool.find(s => s.code === val || s.name === rawVal || s.name.includes(rawVal));
         if (poolItem) {
             selectStock(poolItem.code);
             return;
         }
 
-        // 4. 無匹配結果
-        statusEl.innerHTML = `<span style="color:#d9534f;">查無 「${val}」 相關股票或收盤價，請手動輸入股價。</span>`;
+        statusEl.innerHTML = `<span style="color:#d9534f;">查無 「${rawVal}」 相關股票或收盤價，請手動輸入股價。</span>`;
     }
 
     function setUnit(unit) {
@@ -662,10 +693,10 @@
             currentDiscount = val;
             localStorage.setItem('tw_discount', val);
             
-            if (val === 0) btns[0].classList.add('active');
-            else if (val === 1.68) btns[1].classList.add('active');
-            else if (val === 2.8) btns[2].classList.add('active');
-            else if (val === 6) btns[3].classList.add('active');
+            let idx = knownDiscounts.indexOf(val);
+            if (idx !== -1 && btns[idx]) {
+                btns[idx].classList.add('active');
+            }
         } else {
             currentDiscount = 10;
         }
