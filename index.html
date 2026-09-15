@@ -12,7 +12,7 @@
             --card-bg: #ffffff;
             --profit: #d9534f;
             --border: #cccccc;
-            --gacha: #e67e22;
+            --subtle-gray: #64748b;
         }
 
         body {
@@ -50,10 +50,10 @@
             gap: 6px;
         }
 
-        /* 電腦版 (>= 768px) 雙欄自適應排版 */
+        /* 電腦版 (>= 768px) 雙欄排版 */
         @media (min-width: 768px) {
             .calc-card {
-                max-width: 840px;
+                max-width: 820px;
                 padding: 24px;
             }
             .calc-body {
@@ -72,10 +72,12 @@
             }
         }
 
+        /* 熱門股票區塊 (視覺弱化與微型化) */
         .stock-section {
-            background: #f0f4f8;
-            border-radius: 8px;
-            padding: 8px 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 8px;
             margin-bottom: 10px;
         }
 
@@ -83,13 +85,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .stock-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #444;
+            font-size: 11px;
+            font-weight: bold;
+            color: #64748b;
         }
 
         .header-actions {
@@ -97,48 +99,38 @@
             gap: 4px;
         }
 
-        .gacha-btn {
-            background: linear-gradient(135deg, #ff9f43, #e67e22);
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 3px 8px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .refresh-btn {
-            background: #fff;
+        /* 低調按鈕樣式 */
+        .subtle-btn {
+            background: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
-            padding: 3px 7px;
-            font-size: 11px;
+            padding: 2px 5px;
+            font-size: 10.5px;
             cursor: pointer;
             color: #475569;
-            display: flex;
-            align-items: center;
-            gap: 2px;
+            transition: all 0.15s;
+        }
+
+        .subtle-btn:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
         }
 
         .stock-chips {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 6px;
+            gap: 4px;
+            margin-bottom: 5px;
         }
 
         .chip {
-            background: #fff;
+            background: #ffffff;
             border: 1px solid #cbd5e1;
-            border-radius: 12px;
-            padding: 3px 8px;
-            font-size: 12px;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
             cursor: pointer;
-            color: #334155;
+            color: #475569;
             transition: all 0.15s;
         }
 
@@ -149,34 +141,39 @@
 
         .stock-search-box {
             display: flex;
-            gap: 6px;
+            gap: 4px;
         }
 
         .stock-search-box input {
             flex: 1;
-            padding: 6px 8px;
-            font-size: 14px;
+            padding: 4px 6px;
+            font-size: 12px;
             border: 1px solid var(--border);
-            border-radius: 5px;
+            border-radius: 4px;
         }
 
         .stock-search-btn {
-            background: var(--primary);
+            background: #64748b;
             color: #fff;
             border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
             cursor: pointer;
         }
 
-        .stock-status {
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 4px;
-            min-height: 15px;
+        .stock-search-btn:hover {
+            background: #475569;
         }
 
+        .stock-status {
+            font-size: 10.5px;
+            color: #64748b;
+            margin-top: 3px;
+            min-height: 14px;
+        }
+
+        /* 主要表單區塊 */
         .form-group {
             margin-bottom: 10px;
         }
@@ -186,7 +183,7 @@
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 4px;
-            color: #444;
+            color: #333;
         }
 
         .input-group {
@@ -317,12 +314,13 @@
     <div class="calc-body">
         <!-- 輸入設定區 -->
         <div class="input-section">
+            <!-- 弱化非核心功能：熱門股票區塊 -->
             <div class="stock-section">
                 <div class="stock-header">
-                    <span class="stock-title">熱門股票 (精選5檔)</span>
+                    <span class="stock-title">熱門股票</span>
                     <div class="header-actions">
-                        <button type="button" class="gacha-btn" onclick="drawGachaStock()">🎰 抽股票</button>
-                        <button type="button" class="refresh-btn" onclick="renderHotStocks()">🔄 換一組</button>
+                        <button type="button" class="subtle-btn" onclick="drawGachaStock()">🎰 抽股票</button>
+                        <button type="button" class="subtle-btn" onclick="renderHotStocks()">🔄 換一組</button>
                     </div>
                 </div>
                 <div class="stock-chips" id="stockChips"></div>
@@ -440,15 +438,24 @@
 
         let savedDiscount = localStorage.getItem('tw_discount');
         if (savedDiscount !== null) {
-            currentDiscount = parseFloat(savedDiscount);
+            let val = parseFloat(savedDiscount);
+            let btnIndex = -1;
+            if (val === 0) btnIndex = 0;
+            else if (val === 1.68) btnIndex = 1;
+            else if (val === 2.8) btnIndex = 2;
+            else if (val === 6) btnIndex = 3;
+
             let btns = document.querySelectorAll('#discountGroup .seg-btn');
-            btns.forEach(b => b.classList.remove('active'));
-            if(savedDiscount === '0') btns[0].classList.add('active');
-            else if(savedDiscount === '1.68') btns[1].classList.add('active');
-            else if(savedDiscount === '2.8') btns[2].classList.add('active');
-            else if(savedDiscount === '6') btns[3].classList.add('active');
-            else document.getElementById('customDiscount').value = savedDiscount;
+            if (btnIndex !== -1) {
+                setDiscount(val, btns[btnIndex]);
+            } else {
+                document.getElementById('customDiscount').value = val;
+                onCustomDiscountInput();
+            }
+        } else {
+            setDiscount(2.8, document.querySelectorAll('#discountGroup .seg-btn')[2]);
         }
+
         if (localStorage.getItem('tw_minFee')) {
             document.getElementById('minFee').value = localStorage.getItem('tw_minFee');
         }
@@ -481,7 +488,7 @@
         let timer = setInterval(() => {
             let tempCode = poolKeys[Math.floor(Math.random() * poolKeys.length)];
             let tempName = stockData[tempCode] ? stockData[tempCode].n : (stockPool.find(s=>s.code===tempCode)?.name || tempCode);
-            statusEl.innerHTML = `<span style="color:var(--gacha); font-weight:bold;">🎰 轉蛋中... ${tempCode} ${tempName}</span>`;
+            statusEl.innerHTML = `<span style="color:#64748b; font-weight:bold;">🎰 轉蛋中... ${tempCode} ${tempName}</span>`;
             
             counter++;
             if (counter >= 10) {
@@ -566,23 +573,35 @@
         calculate();
     }
 
+    // 折數選擇：同步填入下方的數字輸入框
     function setDiscount(val, btn) {
         document.querySelectorAll('#discountGroup .seg-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        document.getElementById('customDiscount').value = '';
+        
+        document.getElementById('customDiscount').value = val;
         currentDiscount = val;
         localStorage.setItem('tw_discount', val);
         calculate();
     }
 
+    // 輸入框手動輸入：自動與上方快捷按鈕比對並亮燈
     function onCustomDiscountInput() {
         let val = parseFloat(document.getElementById('customDiscount').value);
+        let btns = document.querySelectorAll('#discountGroup .seg-btn');
+        btns.forEach(b => b.classList.remove('active'));
+        
         if (!isNaN(val)) {
-            document.querySelectorAll('#discountGroup .seg-btn').forEach(b => b.classList.remove('active'));
             currentDiscount = val;
             localStorage.setItem('tw_discount', val);
-            calculate();
+            
+            if (val === 0) btns[0].classList.add('active');
+            else if (val === 1.68) btns[1].classList.add('active');
+            else if (val === 2.8) btns[2].classList.add('active');
+            else if (val === 6) btns[3].classList.add('active');
+        } else {
+            currentDiscount = 10;
         }
+        calculate();
     }
 
     function setTax(rate, btn) {
