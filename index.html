@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JW913L4QSX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-JW913L4QSX');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台股買進後賣多少才賺？</title>
+    <title>台股損益平衡計算機 - 買進後賣多少才賺？</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
     <style>
         :root {
@@ -38,16 +47,25 @@
             transition: max-width 0.3s ease;
         }
 
-        .title {
-            font-size: 19px;
-            font-weight: bold;
+        .header-group {
             text-align: center;
-            margin: 0 0 14px 0;
+            margin-bottom: 14px;
+        }
+
+        .main-title {
+            font-size: 20px;
+            font-weight: bold;
             color: #111;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+        }
+
+        .sub-title {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 3px;
         }
 
         /* 電腦版 (>= 768px) 雙欄排版 */
@@ -143,12 +161,42 @@
             gap: 4px;
         }
 
-        .stock-search-box input {
+        /* 搜尋輸入框 + ✕ 清除按鈕容器 */
+        .search-input-wrapper {
+            position: relative;
             flex: 1;
-            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 4px 22px 4px 6px;
             font-size: 12px;
             border: 1px solid var(--border);
             border-radius: 4px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .search-input-wrapper input:focus {
+            border-color: var(--primary);
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 6px;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .clear-btn:hover {
+            color: #475569;
         }
 
         .stock-search-btn {
@@ -343,7 +391,11 @@
 <body>
 
 <div class="calc-card">
-    <div class="title">📈 台股買進後賣多少才賺？</div>
+    <!-- 主標題與副標題 -->
+    <div class="header-group">
+        <div class="main-title">📈 台股損益平衡計算機</div>
+        <div class="sub-title">買進後賣多少才賺？</div>
+    </div>
 
     <div class="calc-body">
         <!-- 輸入設定區 -->
@@ -358,7 +410,10 @@
                 </div>
                 <div class="stock-chips" id="stockChips"></div>
                 <div class="stock-search-box">
-                    <input type="text" id="symbolInput" list="stockList" placeholder="輸入代號或公司名稱 (如: 2330 或 台積電)" onfocus="this.select()" oninput="onStockInput(this.value)" onkeypress="if(event.key==='Enter') searchCustomStock()">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="symbolInput" list="stockList" placeholder="輸入代號或公司名稱 (如: 2330 或 台積電)" onfocus="this.select()" oninput="handleSymbolInput(this.value)" onkeypress="if(event.key==='Enter') searchCustomStock()">
+                        <span class="clear-btn" id="clearSymbolBtn" onclick="clearSymbolInput()">✕</span>
+                    </div>
                     <datalist id="stockList"></datalist>
                     <button type="button" class="stock-search-btn" onclick="searchCustomStock()">查詢價格</button>
                 </div>
@@ -386,11 +441,10 @@
                 </div>
             </div>
 
-            <!-- 券商折數 (擴充為 6 個選項：0折、1.68折、2折、2.5折、2.8折、6折) -->
+            <!-- 券商折數 (已刪除0折，保留5個選項：1.68折、2折、2.5折、2.8折、6折) -->
             <div class="form-group">
                 <label>券商手續費折數</label>
                 <div class="seg-group" id="discountGroup">
-                    <button type="button" class="seg-btn" onclick="setDiscount(0, this)">0折(免)</button>
                     <button type="button" class="seg-btn" onclick="setDiscount(1.68, this)">1.68折</button>
                     <button type="button" class="seg-btn" onclick="setDiscount(2, this)">2折</button>
                     <button type="button" class="seg-btn" onclick="setDiscount(2.5, this)">2.5折</button>
@@ -478,7 +532,7 @@
         { code: '00713', name: '元大台灣高息低波', p: 57 }, { code: '006208', name: '富邦台50', p: 105 }
     ];
 
-    const knownDiscounts = [0, 1.68, 2, 2.5, 2.8, 6];
+    const knownDiscounts = [1.68, 2, 2.5, 2.8, 6];
 
     let currentUnit = 'sheet';
     let currentDiscount = 2.8;
@@ -502,7 +556,7 @@
                 onCustomDiscountInput();
             }
         } else {
-            setDiscount(2.8, document.querySelectorAll('#discountGroup .seg-btn')[4]);
+            setDiscount(2.8, document.querySelectorAll('#discountGroup .seg-btn')[3]);
         }
 
         if (localStorage.getItem('tw_minFee')) {
@@ -524,7 +578,6 @@
         }
     }
 
-    // 填充 HTML5 Datalist 下拉選單
     function populateDatalist() {
         let datalist = document.getElementById('stockList');
         if (!datalist) return;
@@ -540,13 +593,32 @@
         });
     }
 
-    // 輸入即時比對（從 Datalist 下拉選項選取時直接帶入）
-    function onStockInput(val) {
+    /* 處理輸入框：顯示/隱藏 ✕ 按鈕與自動比對帶入 */
+    function handleSymbolInput(val) {
+        let clearBtn = document.getElementById('clearSymbolBtn');
+        if (val.trim().length > 0) {
+            clearBtn.style.display = 'block';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+
         val = val.trim();
         let match = val.match(/^(\d+[A-Za-z]?)/);
         if (match && (stockData[match[1]] || stockPool.some(s => s.code === match[1]))) {
             selectStock(match[1]);
         }
+    }
+
+    /* 一鍵清除搜尋框文字 */
+    function clearSymbolInput() {
+        let inputEl = document.getElementById('symbolInput');
+        let clearBtn = document.getElementById('clearSymbolBtn');
+        let statusEl = document.getElementById('stockStatus');
+        
+        inputEl.value = '';
+        clearBtn.style.display = 'none';
+        statusEl.innerHTML = '';
+        inputEl.focus();
     }
 
     function drawGachaStock() {
@@ -592,10 +664,12 @@
     function selectStock(code, fallbackName) {
         let statusEl = document.getElementById('stockStatus');
         let inputEl = document.getElementById('symbolInput');
+        let clearBtn = document.getElementById('clearSymbolBtn');
         
         let target = stockData[code];
         let name = target ? target.n : (stockPool.find(s=>s.code===code)?.name || fallbackName || code);
         inputEl.value = `${code} ${name}`;
+        clearBtn.style.display = 'block';
 
         let dateStr = updatedAt ? updatedAt.split(' ')[0] : '';
         let dateTag = dateStr ? `[${dateStr}] ` : '';
