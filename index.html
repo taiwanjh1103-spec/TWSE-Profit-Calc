@@ -11,20 +11,21 @@
             --card-bg: #ffffff;
             --profit: #d9534f;
             --border: #cccccc;
+            --gacha: #e67e22;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 12px;
+            padding: 8px;
             display: flex;
             justify-content: center;
         }
 
         .calc-card {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 16px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             width: 100%;
@@ -32,44 +33,77 @@
         }
 
         .title {
-            font-size: 19px;
+            font-size: 18px;
             font-weight: bold;
             text-align: center;
-            margin: 0 0 16px 0;
+            margin: 0 0 10px 0;
             color: #111;
         }
 
-        /* 股票搜尋與熱門推薦區塊 */
+        /* 熱門股票區塊 */
         .stock-section {
             background: #f0f4f8;
             border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 14px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
         }
 
         .stock-title {
             font-size: 12px;
             font-weight: 600;
-            color: #555;
-            margin-bottom: 6px;
+            color: #444;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .gacha-btn {
+            background: linear-gradient(135deg, #ff9f43, #e67e22);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .refresh-btn {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            cursor: pointer;
+            color: #475569;
+        }
+
+        /* 5 個熱門標籤自然自動排版 (不滑動) */
         .stock-chips {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 8px;
+            gap: 5px;
+            margin-bottom: 6px;
         }
 
         .chip {
             background: #fff;
             border: 1px solid #cbd5e1;
-            border-radius: 16px;
-            padding: 4px 10px;
+            border-radius: 12px;
+            padding: 3px 8px;
             font-size: 12px;
             cursor: pointer;
-            transition: all 0.15s;
             color: #334155;
+            transition: all 0.15s;
         }
 
         .chip:hover {
@@ -84,51 +118,50 @@
 
         .stock-search-box input {
             flex: 1;
-            padding: 6px 10px;
+            padding: 5px 8px;
             font-size: 14px;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 5px;
         }
 
         .stock-search-btn {
             background: var(--primary);
             color: #fff;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
             cursor: pointer;
-            white-space: nowrap;
         }
 
         .stock-status {
             font-size: 11px;
             color: #64748b;
-            margin-top: 5px;
-            min-height: 16px;
+            margin-top: 4px;
+            min-height: 15px;
         }
 
-        /* 單欄表單區 */
+        /* 單欄垂直表單區 */
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 9px;
         }
 
         label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             color: #444;
         }
 
         .input-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         input[type="number"] {
             width: 100%;
-            padding: 9px 11px;
+            padding: 8px 10px;
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 16px;
@@ -141,72 +174,68 @@
         }
 
         .custom-discount {
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .seg-group {
             display: flex;
             background: #e9ecef;
-            padding: 3px;
+            padding: 2px;
             border-radius: 6px;
-            gap: 3px;
+            gap: 2px;
         }
 
         .seg-btn {
             flex: 1;
-            padding: 8px 4px;
+            padding: 7px 2px;
             border: none;
             background: transparent;
-            font-size: 13px;
+            font-size: 12px;
             border-radius: 4px;
             cursor: pointer;
             text-align: center;
-            white-space: nowrap;
         }
 
         .seg-btn.active {
             background: #fff;
             font-weight: bold;
             color: var(--primary);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        .seg-btn:disabled {
-            opacity: 0.35;
-            cursor: not-allowed;
-        }
+        .seg-btn:disabled { opacity: 0.35; }
 
         /* 計算結果 */
         .result-box {
-            margin-top: 16px;
+            margin-top: 10px;
             background: #f8f9fa;
             border: 1px solid #e2e6ea;
             border-radius: 8px;
-            padding: 14px;
+            padding: 10px 12px;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
+            font-size: 13px;
             color: #555;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .breakeven-container {
             text-align: center;
-            margin: 10px 0 8px 0;
-            padding-top: 8px;
+            margin: 6px 0 6px 0;
+            padding-top: 6px;
             border-top: 1px dashed #ccc;
         }
 
         .breakeven-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #666;
         }
 
         .breakeven-price {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold;
             color: var(--profit);
         }
@@ -214,12 +243,12 @@
         .ladder-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
-            font-size: 13px;
+            margin-top: 4px;
+            font-size: 12px;
         }
 
         .ladder-table th, .ladder-table td {
-            padding: 5px 4px;
+            padding: 4px 2px;
             text-align: right;
         }
 
@@ -235,15 +264,14 @@
             background-color: #fff1f1;
         }
 
-        /* 頁尾免責聲明 */
         .disclaimer {
-            margin-top: 16px;
-            font-size: 11px;
-            color: #888888;
+            margin-top: 10px;
+            font-size: 10px;
+            color: #999999;
             text-align: center;
-            line-height: 1.5;
+            line-height: 1.3;
             border-top: 1px solid #eeeeee;
-            padding-top: 10px;
+            padding-top: 6px;
         }
     </style>
 </head>
@@ -252,22 +280,21 @@
 <div class="calc-card">
     <div class="title">台股買進後賣多少才賺？</div>
 
-    <!-- 熱門股票與即時股價連動 -->
+    <!-- 股票搜尋與標籤 (5個標籤) -->
     <div class="stock-section">
-        <div class="stock-title">熱門股票快選 (點擊帶入現價)</div>
-        <div class="stock-chips">
-            <button type="button" class="chip" onclick="fetchStock('2330')">台積電 2330</button>
-            <button type="button" class="chip" onclick="fetchStock('2317')">鴻海 2317</button>
-            <button type="button" class="chip" onclick="fetchStock('2454')">聯發科 2454</button>
-            <button type="button" class="chip" onclick="fetchStock('0050')">0050</button>
-            <button type="button" class="chip" onclick="fetchStock('0056')">0056</button>
-            <button type="button" class="chip" onclick="fetchStock('00878')">00878</button>
+        <div class="stock-header">
+            <span class="stock-title">熱門股票 (精選5檔)</span>
+            <div class="header-actions">
+                <button type="button" class="gacha-btn" onclick="drawGachaStock()">🎰 抽股票</button>
+                <button type="button" class="refresh-btn" onclick="renderHotStocks()">🔄 換一組</button>
+            </div>
         </div>
+        <div class="stock-chips" id="stockChips"></div>
         <div class="stock-search-box">
             <input type="text" id="symbolInput" placeholder="輸入股票代號 (如: 2330)" onfocus="this.select()">
             <button type="button" class="stock-search-btn" onclick="searchCustomStock()">查詢價格</button>
         </div>
-        <div class="stock-status" id="stockStatus">提示：點擊上方股票可自動帶入現價</div>
+        <div class="stock-status" id="stockStatus">提示：點擊標籤或抽股票帶入最新價格</div>
     </div>
 
     <!-- 買入股價 -->
@@ -281,7 +308,7 @@
         <label>買入數量</label>
         <div class="input-group">
             <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
-            <div class="seg-group" style="width: 110px;">
+            <div class="seg-group" style="width: 100px;">
                 <button type="button" class="seg-btn active" id="btnSheet" onclick="setUnit('sheet')">張</button>
                 <button type="button" class="seg-btn" id="btnShare" onclick="setUnit('share')">股</button>
             </div>
@@ -332,7 +359,6 @@
             <div class="breakeven-price"><span id="breakevenPrice">0.00</span> 元</div>
         </div>
 
-        <!-- 檔位表格 -->
         <table class="ladder-table">
             <thead>
                 <tr>
@@ -345,18 +371,36 @@
         </table>
     </div>
 
-    <!-- 頁尾免責聲明 -->
     <div class="disclaimer">
         免責聲明：本工具計算結果僅供參考，實際交易費用以各大證券商與台灣證券交易所最新規範為準。本網站不保證資訊之即時性與精確性，亦不構成任何形式之投資建議或買賣指示。
     </div>
 </div>
 
 <script>
+    let stockData = {};
+    let updatedAt = '';
+
+    const stockPool = [
+        { code: '2330', name: '台積電' }, { code: '2317', name: '鴻海' },
+        { code: '2454', name: '聯發科' }, { code: '2382', name: '廣達' },
+        { code: '3231', name: '緯創' },   { code: '2308', name: '台達電' },
+        { code: '2881', name: '富邦金' }, { code: '2882', name: '國泰金' },
+        { code: '2886', name: '兆豐金' }, { code: '2603', name: '長榮' },
+        { code: '2303', name: '聯電' },   { code: '3017', name: '奇鋐' },
+        { code: '0050', name: '元大台灣50' }, { code: '0056', name: '元大高股息' },
+        { code: '00878', name: '國泰永續高股息' }, { code: '00919', name: '群益台灣精選高息' },
+        { code: '00929', name: '復華台灣科技優息' }, { code: '00940', name: '元大台灣價值高息' },
+        { code: '00713', name: '元大台灣高息低波' }, { code: '006208', name: '富邦台50' }
+    ];
+
     let currentUnit = 'sheet';
     let currentDiscount = 2.8;
     let currentTaxRate = 0.003;
 
-    window.onload = function() {
+    window.onload = async function() {
+        renderHotStocks();
+        await loadStockJson();
+
         let savedDiscount = localStorage.getItem('tw_discount');
         if (savedDiscount !== null) {
             currentDiscount = parseFloat(savedDiscount);
@@ -374,70 +418,84 @@
         calculate();
     };
 
-    // 串接 Yahoo 財經抓取台股即時價格 (使用 CORS Proxy)
-    async function fetchStock(symbol) {
+    async function loadStockJson() {
         let statusEl = document.getElementById('stockStatus');
-        statusEl.innerText = `正在抓取 ${symbol} 最新股價...`;
-        
-        let formattedSymbol = symbol.trim();
-        if(!formattedSymbol.endsWith('.TW') && !formattedSymbol.endsWith('.TWO')) {
-            formattedSymbol += '.TW'; // 預設上市股票
-        }
-
-        let targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${formattedSymbol}?interval=1d`;
-        let proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-
         try {
-            let response = await fetch(proxyUrl);
-            let data = await response.json();
-            let parsedData = JSON.parse(data.contents);
-            
-            let result = parsedData.chart.result[0];
-            let price = result.meta.regularMarketPrice;
-            let stockName = result.meta.shortName || symbol;
-
-            if (price) {
-                document.getElementById('buyPrice').value = price;
-                statusEl.innerHTML = `<span style="color:#28a745;">已帶入 ${stockName} 現價：<b>${price}</b> 元</span>`;
-                
-                // 自動依類型切換 ETF
-                if(symbol.startsWith('00')) {
-                    setTax(0.001, document.getElementById('taxEtf'));
-                } else if(currentTaxRate === 0.001) {
-                    setTax(0.003, document.getElementById('taxNormal'));
-                }
-                
-                calculate();
-            } else {
-                throw new Error('未找到價格');
-            }
-        } catch (err) {
-            // 如果 上市(.TW) 失敗，嘗試 上櫃(.TWO)
-            if(formattedSymbol.endsWith('.TW')) {
-                let altSymbol = symbol.trim() + '.TWO';
-                let altTargetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${altSymbol}?interval=1d`;
-                let altProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(altTargetUrl)}`;
-                try {
-                    let res2 = await fetch(altProxyUrl);
-                    let data2 = await res2.json();
-                    let parsed2 = JSON.parse(data2.contents);
-                    let price2 = parsed2.chart.result[0].meta.regularMarketPrice;
-                    let name2 = parsed2.chart.result[0].meta.shortName || symbol;
-                    if(price2) {
-                        document.getElementById('buyPrice').value = price2;
-                        statusEl.innerHTML = `<span style="color:#28a745;">已帶入 ${name2} (上櫃) 現價：<b>${price2}</b> 元</span>`;
-                        calculate();
-                        return;
-                    }
-                } catch(e) {}
-            }
-            statusEl.innerHTML = `<span style="color:#d9534f;">無法抓取 ${symbol} 股價，請手動輸入。</span>`;
+            let res = await fetch('./stocks.json');
+            if(!res.ok) throw new Error();
+            let data = await res.json();
+            stockData = data.stocks || {};
+            updatedAt = data.updated_at || '';
+            statusEl.innerText = `提示：全台股資料庫已就緒 (${updatedAt})`;
+        } catch (e) {
+            statusEl.innerText = `提示：點擊標籤或輸入代號查價`;
         }
+    }
+
+    function drawGachaStock() {
+        let keys = Object.keys(stockData);
+        let poolKeys = keys.length > 0 ? keys : stockPool.map(s => s.code);
+        if (poolKeys.length === 0) return;
+
+        let statusEl = document.getElementById('stockStatus');
+        let counter = 0;
+        
+        let timer = setInterval(() => {
+            let tempCode = poolKeys[Math.floor(Math.random() * poolKeys.length)];
+            let tempName = stockData[tempCode] ? stockData[tempCode].n : (stockPool.find(s=>s.code===tempCode)?.name || tempCode);
+            statusEl.innerHTML = `<span style="color:var(--gacha); font-weight:bold;">🎰 轉蛋中... ${tempCode} ${tempName}</span>`;
+            
+            counter++;
+            if (counter >= 10) {
+                clearInterval(timer);
+                let finalCode = poolKeys[Math.floor(Math.random() * poolKeys.length)];
+                let finalObj = stockData[finalCode];
+                let finalName = finalObj ? finalObj.n : (stockPool.find(s=>s.code===finalCode)?.name || finalCode);
+                
+                selectStock(finalCode, finalName);
+                statusEl.innerHTML = `<span style="color:var(--gacha); font-weight:bold;">🎉 恭喜抽中：${finalCode} ${finalName}！</span>`;
+            }
+        }, 50);
+    }
+
+    // 只渲染 5 個標籤
+    function renderHotStocks() {
+        let shuffled = [...stockPool].sort(() => 0.5 - Math.random());
+        let selected = shuffled.slice(0, 5);
+        let chipsContainer = document.getElementById('stockChips');
+        chipsContainer.innerHTML = '';
+        selected.forEach(stk => {
+            let btn = document.createElement('button');
+            btn.className = 'chip';
+            btn.type = 'button';
+            btn.innerText = `${stk.code} ${stk.name}`;
+            btn.onclick = () => selectStock(stk.code, stk.name);
+            chipsContainer.appendChild(btn);
+        });
+    }
+
+    function selectStock(code, fallbackName) {
+        let statusEl = document.getElementById('stockStatus');
+        let target = stockData[code];
+
+        if (target) {
+            document.getElementById('buyPrice').value = target.p;
+            statusEl.innerHTML = `<span style="color:#28a745;">已帶入 ${code} ${target.n} 收盤價：<b>${target.p}</b> 元</span>`;
+        } else {
+            statusEl.innerHTML = `<span style="color:#d9534f;">尚未收錄 ${code}，請手動輸入。</span>`;
+        }
+
+        if (code.startsWith('00')) {
+            setTax(0.001, document.getElementById('taxEtf'));
+        } else if (currentTaxRate === 0.001) {
+            setTax(0.003, document.getElementById('taxNormal'));
+        }
+        calculate();
     }
 
     function searchCustomStock() {
         let val = document.getElementById('symbolInput').value.trim();
-        if(val) fetchStock(val);
+        if (val) selectStock(val, val);
     }
 
     function setUnit(unit) {
