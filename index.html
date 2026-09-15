@@ -6,268 +6,299 @@
     <title>台股買進後賣多少才賺？</title>
     <style>
         :root {
-            --primary-color: #007bff;
-            --bg-color: #f4f7f6;
+            --primary: #007bff;
+            --bg: #ecefe;
             --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #dddddd;
-            --profit-red: #d9534f;
+            --profit: #d9534f;
+            --border: #dcdcdc;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f4f6f8;
             margin: 0;
-            padding: 15px;
+            padding: 10px;
             display: flex;
             justify-content: center;
         }
 
-        .calculator-card {
+        .calc-card {
             background: var(--card-bg);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             width: 100%;
-            max-width: 440px;
+            max-width: 380px;
         }
 
-        h1 {
-            font-size: 20px;
+        .title {
+            font-size: 17px;
+            font-weight: bold;
             text-align: center;
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #111;
+            margin: 0 0 12px 0;
+            color: #222;
         }
 
-        .form-group {
-            margin-bottom: 18px;
+        /* 雙欄併排網格 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
         }
 
         label {
-            display: block;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
-            margin-bottom: 6px;
-            color: #555;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: 4px;
+            color: #666;
         }
 
         input[type="number"] {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 16px;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 15px;
             box-sizing: border-box;
             outline: none;
         }
 
         input[type="number"]:focus {
-            border-color: var(--primary-color);
+            border-color: var(--primary);
         }
 
-        /* 快捷切換按鈕組 */
-        .segmented-control {
+        /* 數量 + 單位組合框 */
+        .qty-group {
             display: flex;
-            background: #eee;
-            padding: 3px;
-            border-radius: 6px;
+            gap: 4px;
+        }
+
+        .unit-toggle {
+            display: flex;
+            background: #e9ecef;
+            padding: 2px;
+            border-radius: 5px;
+            width: 75px;
+            flex-shrink: 0;
+        }
+
+        .unit-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 11px;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .unit-btn.active {
+            background: #fff;
+            font-weight: bold;
+            color: var(--primary);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* 緊湊按鈕組 */
+        .seg-group {
+            display: flex;
+            background: #e9ecef;
+            padding: 2px;
+            border-radius: 5px;
             gap: 2px;
         }
 
-        .segmented-btn {
+        .seg-btn {
             flex: 1;
-            padding: 8px 4px;
+            padding: 5px 2px;
             border: none;
             background: transparent;
-            font-size: 13px;
-            border-radius: 4px;
+            font-size: 12px;
+            border-radius: 3px;
             cursor: pointer;
             text-align: center;
-            transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        .segmented-btn.active {
+        .seg-btn.active {
             background: #fff;
             font-weight: bold;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-            color: var(--primary-color);
+            color: var(--primary);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        .segmented-btn:disabled {
-            opacity: 0.4;
+        .seg-btn:disabled {
+            opacity: 0.35;
             cursor: not-allowed;
         }
 
-        .custom-discount-input {
-            margin-top: 8px;
-            display: none;
-        }
-
-        /* 即時結果區域 */
-        .result-box {
-            margin-top: 22px;
+        /* 即時結果資訊卡 */
+        .result-card {
+            margin-top: 10px;
             background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 16px;
+            border: 1px solid #e3e6e8;
+            border-radius: 6px;
+            padding: 10px 12px;
         }
 
-        .summary-row {
+        .result-main {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 8px;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .result-meta {
+            font-size: 12px;
             color: #666;
+            line-height: 1.4;
         }
 
-        .breakeven-header {
-            text-align: center;
-            margin: 14px 0 10px 0;
-            padding-top: 10px;
-            border-top: 1px dashed #ccc;
+        .target-price {
+            text-align: right;
         }
 
-        .breakeven-price {
-            font-size: 26px;
+        .target-price .price {
+            font-size: 22px;
             font-weight: bold;
-            color: var(--profit-red);
+            color: var(--profit);
+            line-height: 1;
         }
 
-        /* 梯隊損益表 */
-        .ladder-table {
+        /* 精簡表格 */
+        .tight-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 13px;
+            margin-top: 6px;
+            font-size: 12px;
         }
 
-        .ladder-table th, .ladder-table td {
-            padding: 6px 8px;
+        .tight-table th, .tight-table td {
+            padding: 4px 2px;
             text-align: right;
-            border-bottom: 1px solid #eef0f2;
         }
 
-        .ladder-table th {
-            text-align: left;
-            color: #777;
+        .tight-table th {
+            color: #888;
             font-weight: normal;
+            border-bottom: 1px solid #eee;
         }
 
-        .ladder-table tr.highlight-row {
-            background-color: #fff3f3;
+        .tight-table tr.active-row {
+            color: var(--profit);
             font-weight: bold;
         }
-
-        .text-left { text-align: left !important; }
     </style>
 </head>
 <body>
 
-<div class="calculator-card">
-    <h1>台股買進後賣多少才賺？</h1>
+<div class="calc-card">
+    <div class="title">台股買進後賣多少才賺？</div>
 
-    <!-- 買入股價 -->
-    <div class="form-group">
-        <label for="buyPrice">買入股價 (元)</label>
-        <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
-    </div>
-
-    <!-- 買入數量與單位 -->
-    <div class="form-group">
-        <label>買入數量</label>
-        <div class="input-group">
-            <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
-            <div class="segmented-control" style="width: 140px;">
-                <button type="button" class="segmented-btn active" id="unitSheetBtn" onclick="setUnit('sheet')">張</button>
-                <button type="button" class="segmented-btn" id="unitShareBtn" onclick="setUnit('share')">零股</button>
+    <!-- 併排列 1：股價 + 數量 -->
+    <div class="grid-2">
+        <div class="form-item">
+            <label for="buyPrice">買入股價 (元)</label>
+            <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
+        </div>
+        <div class="form-item">
+            <label>買入數量</label>
+            <div class="qty-group">
+                <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
+                <div class="unit-toggle">
+                    <button type="button" class="unit-btn active" id="btnSheet" onclick="setUnit('sheet')">張</button>
+                    <button type="button" class="unit-btn" id="btnShare" onclick="setUnit('share')">股</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 券商折數 -->
-    <div class="form-group">
-        <label>券商手續費折數</label>
-        <div class="segmented-control" id="discountGroup">
-            <button type="button" class="segmented-btn" onclick="setDiscount(0, this)">免手續費</button>
-            <button type="button" class="segmented-btn" onclick="setDiscount(1.68, this)">1.68折</button>
-            <button type="button" class="segmented-btn active" onclick="setDiscount(2.8, this)">2.8折</button>
-            <button type="button" class="segmented-btn" onclick="setDiscount(6, this)">6折</button>
-            <button type="button" class="segmented-btn" onclick="setDiscount('custom', this)">自訂</button>
+    <!-- 併排列 2：手續費折數 + 低消 -->
+    <div class="grid-2">
+        <div class="form-item">
+            <label>券商低消 (元)</label>
+            <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
         </div>
-        <input type="number" id="customDiscount" class="custom-discount-input" placeholder="輸入折數 (如: 2.5)" step="0.01" onfocus="this.select()" oninput="calculate()">
+        <div class="form-item">
+            <label>自訂折數 (非必填)</label>
+            <input type="number" id="customDiscount" placeholder="如 2.5" step="0.01" onfocus="this.select()" oninput="onCustomDiscountInput()">
+        </div>
     </div>
 
-    <!-- 券商低消 -->
-    <div class="form-group">
-        <label for="minFee">手續費低消 (元)</label>
-        <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
+    <!-- 快捷折數切換 -->
+    <div class="form-item">
+        <label>快捷折數</label>
+        <div class="seg-group" id="discountGroup">
+            <button type="button" class="seg-btn" onclick="setDiscount(0, this)">0折(免)</button>
+            <button type="button" class="seg-btn" onclick="setDiscount(1.68, this)">1.68折</button>
+            <button type="button" class="seg-btn active" onclick="setDiscount(2.8, this)">2.8折</button>
+            <button type="button" class="seg-btn" onclick="setDiscount(6, this)">6折</button>
+        </div>
     </div>
 
-    <!-- 交易類型 -->
-    <div class="form-group">
+    <!-- 交易類型切換 -->
+    <div class="form-item" style="margin-bottom: 4px;">
         <label>交易類型 (交易稅)</label>
-        <div class="segmented-control" id="taxGroup">
-            <button type="button" class="segmented-btn active" id="taxNormalBtn" onclick="setTax(0.003, this)">一般股票 (0.3%)</button>
-            <button type="button" class="segmented-btn" id="taxDayBtn" onclick="setTax(0.0015, this)">現股當沖 (0.15%)</button>
-            <button type="button" class="segmented-btn" id="taxEtfBtn" onclick="setTax(0.001, this)">ETF (0.1%)</button>
+        <div class="seg-group" id="taxGroup">
+            <button type="button" class="seg-btn active" id="taxNormal" onclick="setTax(0.003, this)">一般 (0.3%)</button>
+            <button type="button" class="seg-btn" id="taxDay" onclick="setTax(0.0015, this)">當沖 (0.15%)</button>
+            <button type="button" class="seg-btn" id="taxEtf" onclick="setTax(0.001, this)">ETF (0.1%)</button>
         </div>
     </div>
 
-    <!-- 即時計算結果 -->
-    <div class="result-box">
-        <div class="summary-row">
-            <span>買入總成本：</span>
-            <span id="totalBuyCostText">0 元</span>
-        </div>
-        <div class="summary-row">
-            <span>買入手續費：</span>
-            <span id="buyFeeText">0 元</span>
-        </div>
-
-        <div class="breakeven-header">
-            <div style="font-size: 13px; color: #666;">最低獲利賣價 (保本價)</div>
-            <div class="breakeven-price" id="breakevenPriceText">0.00 元</div>
+    <!-- 緊湊型計算結果 -->
+    <div class="result-card">
+        <div class="result-main">
+            <div class="result-meta">
+                買入總成本：<b id="totalCost" style="color:#111;">0</b> 元<br>
+                (含手續費 <span id="buyFee">0</span> 元)
+            </div>
+            <div class="target-price">
+                <div style="font-size: 11px; color: #777;">保本最低賣價</div>
+                <div class="price" id="breakevenPrice">0.00</div>
+            </div>
         </div>
 
-        <!-- 跳檔損益預覽表 -->
-        <table class="ladder-table">
+        <!-- 檔位預覽表 -->
+        <table class="tight-table">
             <thead>
                 <tr>
-                    <th class="text-left">賣出價位</th>
+                    <th style="text-align: left;">賣出價位</th>
                     <th>預估淨利</th>
                     <th>報酬率</th>
                 </tr>
             </thead>
-            <tbody id="ladderTableBody">
-                <!-- 動態注入檔位數據 -->
-            </tbody>
+            <tbody id="ladderBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    let currentUnit = 'sheet'; // 'sheet' 或 'share'
-    let currentDiscount = 2.8; // 折數，0 代表免手續費
+    let currentUnit = 'sheet';
+    let currentDiscount = 2.8;
     let currentTaxRate = 0.003;
 
-    // 載入 LocalStorage 紀錄
     window.onload = function() {
-        if(localStorage.getItem('tw_discount')) {
-            let savedDiscount = localStorage.getItem('tw_discount');
-            if(savedDiscount === '0') setDiscount(0, document.querySelectorAll('#discountGroup .segmented-btn')[0]);
-            else if(savedDiscount === '1.68') setDiscount(1.68, document.querySelectorAll('#discountGroup .segmented-btn')[1]);
-            else if(savedDiscount === '2.8') setDiscount(2.8, document.querySelectorAll('#discountGroup .segmented-btn')[2]);
-            else if(savedDiscount === '6') setDiscount(6, document.querySelectorAll('#discountGroup .segmented-btn')[3]);
+        let savedDiscount = localStorage.getItem('tw_discount');
+        if (savedDiscount !== null) {
+            currentDiscount = parseFloat(savedDiscount);
+            let btns = document.querySelectorAll('#discountGroup .seg-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            if(savedDiscount === '0') btns[0].classList.add('active');
+            else if(savedDiscount === '1.68') btns[1].classList.add('active');
+            else if(savedDiscount === '2.8') btns[2].classList.add('active');
+            else if(savedDiscount === '6') btns[3].classList.add('active');
+            else document.getElementById('customDiscount').value = savedDiscount;
         }
-        if(localStorage.getItem('tw_minFee')) {
+        if (localStorage.getItem('tw_minFee')) {
             document.getElementById('minFee').value = localStorage.getItem('tw_minFee');
         }
         calculate();
@@ -275,19 +306,16 @@
 
     function setUnit(unit) {
         currentUnit = unit;
-        document.getElementById('unitSheetBtn').classList.toggle('active', unit === 'sheet');
-        document.getElementById('unitShareBtn').classList.toggle('active', unit === 'share');
+        document.getElementById('btnSheet').classList.toggle('active', unit === 'sheet');
+        document.getElementById('btnShare').classList.toggle('active', unit === 'share');
         
         let qtyInput = document.getElementById('qty');
-        let dayBtn = document.getElementById('taxDayBtn');
+        let dayBtn = document.getElementById('taxDay');
 
         if (unit === 'share') {
             qtyInput.value = 100;
-            // 零股不能當沖：禁用當沖按鈕
             dayBtn.disabled = true;
-            if (currentTaxRate === 0.0015) {
-                setTax(0.003, document.getElementById('taxNormalBtn'));
-            }
+            if (currentTaxRate === 0.0015) setTax(0.003, document.getElementById('taxNormal'));
         } else {
             qtyInput.value = 1;
             dayBtn.disabled = false;
@@ -297,30 +325,31 @@
     }
 
     function setDiscount(val, btn) {
-        document.querySelectorAll('#discountGroup .segmented-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        let customInput = document.getElementById('customDiscount');
-        if (val === 'custom') {
-            customInput.style.display = 'block';
-            customInput.focus();
-            currentDiscount = parseFloat(customInput.value) || 10;
-        } else {
-            customInput.style.display = 'none';
-            currentDiscount = val;
-            localStorage.setItem('tw_discount', val);
-        }
+        document.querySelectorAll('#discountGroup .seg-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        document.getElementById('customDiscount').value = '';
+        currentDiscount = val;
+        localStorage.setItem('tw_discount', val);
         calculate();
     }
 
+    function onCustomDiscountInput() {
+        let val = parseFloat(document.getElementById('customDiscount').value);
+        if (!isNaN(val)) {
+            document.querySelectorAll('#discountGroup .seg-btn').forEach(b => b.classList.remove('active'));
+            currentDiscount = val;
+            localStorage.setItem('tw_discount', val);
+            calculate();
+        }
+    }
+
     function setTax(rate, btn) {
-        document.querySelectorAll('#taxGroup .segmented-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#taxGroup .seg-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentTaxRate = rate;
         calculate();
     }
 
-    // 台股跳動檔位
     function getNextTick(price) {
         price = parseFloat(price.toFixed(2));
         if (price < 10) return parseFloat((price + 0.01).toFixed(2));
@@ -335,73 +364,59 @@
         let buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
         let qtyNum = parseInt(document.getElementById('qty').value) || 0;
         let totalShares = currentUnit === 'sheet' ? qtyNum * 1000 : qtyNum;
-        
         let minFee = parseInt(document.getElementById('minFee').value) || 0;
         localStorage.setItem('tw_minFee', minFee);
 
-        // 折數處理
-        let disc = currentDiscount;
-        if (document.getElementById('customDiscount').style.display === 'block') {
-            disc = parseFloat(document.getElementById('customDiscount').value) || 10;
-        }
-        
-        let feeRate = 0.001425 * (disc / 10);
-
-        // 買進費用計算 (0折則完全免手續費)
+        let feeRate = 0.001425 * (currentDiscount / 10);
         let buyBase = Math.round(buyPrice * totalShares);
-        let buyFee = (disc === 0) ? 0 : Math.max(minFee, Math.floor(buyBase * feeRate));
+        let buyFee = (currentDiscount === 0) ? 0 : Math.max(minFee, Math.floor(buyBase * feeRate));
         let totalBuyCost = buyBase + buyFee;
 
-        document.getElementById('totalBuyCostText').innerText = totalBuyCost.toLocaleString() + ' 元';
-        document.getElementById('buyFeeText').innerText = buyFee.toLocaleString() + ' 元';
+        document.getElementById('totalCost').innerText = totalBuyCost.toLocaleString();
+        document.getElementById('buyFee').innerText = buyFee.toLocaleString();
 
         if (buyPrice <= 0 || totalShares <= 0) return;
 
-        // 計算保本與跳檔階梯
         let currentSell = buyPrice;
         let breakevenPrice = 0;
-        let ladderData = [];
+        let rows = [];
 
-        // 搜尋保本價位
         while (true) {
             currentSell = getNextTick(currentSell);
             let sellBase = Math.round(currentSell * totalShares);
-            let sellFee = (disc === 0) ? 0 : Math.max(minFee, Math.floor(sellBase * feeRate));
+            let sellFee = (currentDiscount === 0) ? 0 : Math.max(minFee, Math.floor(sellBase * feeRate));
             let sellTax = Math.floor(sellBase * currentTaxRate);
-            let netRevenue = sellBase - sellFee - sellTax;
-            let profit = netRevenue - totalBuyCost;
+            let profit = (sellBase - sellFee - sellTax) - totalBuyCost;
 
             if (profit > 0 && breakevenPrice === 0) {
                 breakevenPrice = currentSell;
-                // 找到保本價後，記錄保本價及後續 3 個檔位
-                ladderData.push({ price: currentSell, profit: profit, roi: (profit / totalBuyCost * 100).toFixed(2), label: '保本' });
+                rows.push({ p: currentSell, gain: profit, roi: (profit / totalBuyCost * 100).toFixed(2), label: '保本' });
                 
-                let tempPrice = currentSell;
+                let temp = currentSell;
                 for (let i = 1; i <= 3; i++) {
-                    tempPrice = getNextTick(tempPrice);
-                    let sBase = Math.round(tempPrice * totalShares);
-                    let sFee = (disc === 0) ? 0 : Math.max(minFee, Math.floor(sBase * feeRate));
+                    temp = getNextTick(temp);
+                    let sBase = Math.round(temp * totalShares);
+                    let sFee = (currentDiscount === 0) ? 0 : Math.max(minFee, Math.floor(sBase * feeRate));
                     let sTax = Math.floor(sBase * currentTaxRate);
-                    let p = (sBase - sFee - sTax) - totalBuyCost;
-                    ladderData.push({ price: tempPrice, profit: p, roi: (p / totalBuyCost * 100).toFixed(2), label: `+${i} 檔` });
+                    let g = (sBase - sFee - sTax) - totalBuyCost;
+                    rows.push({ p: temp, gain: g, roi: (g / totalBuyCost * 100).toFixed(2), label: `+${i}檔` });
                 }
                 break;
             }
-            if (currentSell > buyPrice * 3) break; // 安全機制
+            if (currentSell > buyPrice * 3) break;
         }
 
-        document.getElementById('breakevenPriceText').innerText = breakevenPrice.toFixed(2) + ' 元';
+        document.getElementById('breakevenPrice').innerText = breakevenPrice.toFixed(2);
 
-        // 渲染階梯表
-        let tbody = document.getElementById('ladderTableBody');
+        let tbody = document.getElementById('ladderBody');
         tbody.innerHTML = '';
-        ladderData.forEach((row, idx) => {
+        rows.forEach((r, idx) => {
             let tr = document.createElement('tr');
-            if (idx === 0) tr.className = 'highlight-row';
+            if (idx === 0) tr.className = 'active-row';
             tr.innerHTML = `
-                <td class="text-left">${row.price.toFixed(2)} 元 <small style="color:#888;">(${row.label})</small></td>
-                <td style="color: ${row.profit > 0 ? '#d9534f' : '#333'}; font-weight: bold;">+${row.profit.toLocaleString()} 元</td>
-                <td style="color: ${row.profit > 0 ? '#d9534f' : '#333'};">+${row.roi}%</td>
+                <td style="text-align: left;">${r.p.toFixed(2)} <span style="font-size:10px; color:#999;">(${r.label})</span></td>
+                <td>+${r.gain.toLocaleString()} 元</td>
+                <td>+${r.roi}%</td>
             `;
             tbody.appendChild(tr);
         });
