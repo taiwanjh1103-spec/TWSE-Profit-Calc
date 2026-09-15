@@ -3,223 +3,409 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台股賣出獲利計算機</title>
+    <title>台股買進後賣多少才賺？</title>
     <style>
+        :root {
+            --primary-color: #007bff;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --profit-red: #d9534f;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
             display: flex;
             justify-content: center;
         }
-        .calculator {
-            background: white;
-            padding: 25px 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+        .calculator-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
         }
-        h2 {
+
+        h1 {
+            font-size: 20px;
             text-align: center;
-            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #111;
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
+
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
             color: #555;
         }
-        input[type="number"], select {
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="number"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
             box-sizing: border-box;
-            font-size: 16px;
+            outline: none;
         }
-        .custom-discount {
-            display: none;
-            margin-top: 10px;
+
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
         }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
+
+        /* 快捷切換按鈕組 */
+        .segmented-control {
+            display: flex;
+            background: #eee;
+            padding: 3px;
+            border-radius: 6px;
+            gap: 2px;
+        }
+
+        .segmented-btn {
+            flex: 1;
+            padding: 8px 4px;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            background: transparent;
+            font-size: 13px;
+            border-radius: 4px;
             cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .segmented-btn.active {
+            background: #fff;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            color: var(--primary-color);
+        }
+
+        .segmented-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .custom-discount-input {
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* 即時結果區域 */
+        .result-box {
+            margin-top: 22px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .breakeven-header {
+            text-align: center;
+            margin: 14px 0 10px 0;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .breakeven-price {
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--profit-red);
+        }
+
+        /* 梯隊損益表 */
+        .ladder-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .ladder-table th, .ladder-table td {
+            padding: 6px 8px;
+            text-align: right;
+            border-bottom: 1px solid #eef0f2;
+        }
+
+        .ladder-table th {
+            text-align: left;
+            color: #777;
+            font-weight: normal;
+        }
+
+        .ladder-table tr.highlight-row {
+            background-color: #fff3f3;
             font-weight: bold;
         }
-        button:hover {
-            background-color: #218838;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        .highlight {
-            color: #d9534f;
-            font-weight: bold;
-            font-size: 20px;
-        }
+
+        .text-left { text-align: left !important; }
     </style>
 </head>
 <body>
 
-<div class="calculator">
-    <h2>台股賣出獲利計算機</h2>
-    
+<div class="calculator-card">
+    <h1>台股買進後賣多少才賺？</h1>
+
+    <!-- 買入股價 -->
     <div class="form-group">
-        <label>買入股價 (元)</label>
-        <input type="number" id="buyPrice" step="0.01" placeholder="例如: 50.5" required>
+        <label for="buyPrice">買入股價 (元)</label>
+        <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
     </div>
 
+    <!-- 買入數量與單位 -->
     <div class="form-group">
-        <label>買入股數</label>
-        <select id="shares">
-            <option value="1000">1張 (1000股)</option>
-            <option value="custom">自訂零股股數</option>
-        </select>
-        <input type="number" id="customShares" class="custom-discount" placeholder="輸入股數 (1~999)" value="100">
+        <label>買入數量</label>
+        <div class="input-group">
+            <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
+            <div class="segmented-control" style="width: 140px;">
+                <button type="button" class="segmented-btn active" id="unitSheetBtn" onclick="setUnit('sheet')">張</button>
+                <button type="button" class="segmented-btn" id="unitShareBtn" onclick="setUnit('share')">零股</button>
+            </div>
+        </div>
     </div>
 
+    <!-- 券商折數 -->
     <div class="form-group">
         <label>券商手續費折數</label>
-        <select id="discount" onchange="toggleCustomDiscount()">
-            <option value="1.68">1.68 折</option>
-            <option value="2">2 折</option>
-            <option value="2.5">2.5 折</option>
-            <option value="2.8" selected>2.8 折</option>
-            <option value="3">3 折</option>
-            <option value="3.5">3.5 折</option>
-            <option value="6">6 折</option>
-            <option value="10">無折扣 (10折)</option>
-            <option value="custom">自行輸入折數...</option>
-        </select>
-        <input type="number" id="customDiscount" class="custom-discount" step="0.01" placeholder="例如: 1.5">
+        <div class="segmented-control" id="discountGroup">
+            <button type="button" class="segmented-btn" onclick="setDiscount(0, this)">免手續費</button>
+            <button type="button" class="segmented-btn" onclick="setDiscount(1.68, this)">1.68折</button>
+            <button type="button" class="segmented-btn active" onclick="setDiscount(2.8, this)">2.8折</button>
+            <button type="button" class="segmented-btn" onclick="setDiscount(6, this)">6折</button>
+            <button type="button" class="segmented-btn" onclick="setDiscount('custom', this)">自訂</button>
+        </div>
+        <input type="number" id="customDiscount" class="custom-discount-input" placeholder="輸入折數 (如: 2.5)" step="0.01" onfocus="this.select()" oninput="calculate()">
     </div>
 
+    <!-- 券商低消 -->
     <div class="form-group">
-        <label>券商低消 (元)</label>
-        <input type="number" id="minFee" value="20" title="大部分券商為20元，部分為1元">
+        <label for="minFee">手續費低消 (元)</label>
+        <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
     </div>
-    
+
+    <!-- 交易類型 -->
     <div class="form-group">
-        <label>交易稅率</label>
-        <select id="taxRate">
-            <option value="0.003">一般股票 (0.3%)</option>
-            <option value="0.0015">現股當沖 (0.15%)</option>
-            <option value="0.001">ETF (0.1%)</option>
-        </select>
+        <label>交易類型 (交易稅)</label>
+        <div class="segmented-control" id="taxGroup">
+            <button type="button" class="segmented-btn active" id="taxNormalBtn" onclick="setTax(0.003, this)">一般股票 (0.3%)</button>
+            <button type="button" class="segmented-btn" id="taxDayBtn" onclick="setTax(0.0015, this)">現股當沖 (0.15%)</button>
+            <button type="button" class="segmented-btn" id="taxEtfBtn" onclick="setTax(0.001, this)">ETF (0.1%)</button>
+        </div>
     </div>
 
-    <button onclick="calculate()">計算最低獲利賣價</button>
+    <!-- 即時計算結果 -->
+    <div class="result-box">
+        <div class="summary-row">
+            <span>買入總成本：</span>
+            <span id="totalBuyCostText">0 元</span>
+        </div>
+        <div class="summary-row">
+            <span>買入手續費：</span>
+            <span id="buyFeeText">0 元</span>
+        </div>
 
-    <div id="resultBox" class="result" style="display:none;"></div>
+        <div class="breakeven-header">
+            <div style="font-size: 13px; color: #666;">最低獲利賣價 (保本價)</div>
+            <div class="breakeven-price" id="breakevenPriceText">0.00 元</div>
+        </div>
+
+        <!-- 跳檔損益預覽表 -->
+        <table class="ladder-table">
+            <thead>
+                <tr>
+                    <th class="text-left">賣出價位</th>
+                    <th>預估淨利</th>
+                    <th>報酬率</th>
+                </tr>
+            </thead>
+            <tbody id="ladderTableBody">
+                <!-- 動態注入檔位數據 -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    function toggleCustomDiscount() {
-        var discountSelect = document.getElementById("discount");
-        var customInput = document.getElementById("customDiscount");
-        if (discountSelect.value === "custom") {
-            customInput.style.display = "block";
-        } else {
-            customInput.style.display = "none";
+    let currentUnit = 'sheet'; // 'sheet' 或 'share'
+    let currentDiscount = 2.8; // 折數，0 代表免手續費
+    let currentTaxRate = 0.003;
+
+    // 載入 LocalStorage 紀錄
+    window.onload = function() {
+        if(localStorage.getItem('tw_discount')) {
+            let savedDiscount = localStorage.getItem('tw_discount');
+            if(savedDiscount === '0') setDiscount(0, document.querySelectorAll('#discountGroup .segmented-btn')[0]);
+            else if(savedDiscount === '1.68') setDiscount(1.68, document.querySelectorAll('#discountGroup .segmented-btn')[1]);
+            else if(savedDiscount === '2.8') setDiscount(2.8, document.querySelectorAll('#discountGroup .segmented-btn')[2]);
+            else if(savedDiscount === '6') setDiscount(6, document.querySelectorAll('#discountGroup .segmented-btn')[3]);
         }
+        if(localStorage.getItem('tw_minFee')) {
+            document.getElementById('minFee').value = localStorage.getItem('tw_minFee');
+        }
+        calculate();
+    };
+
+    function setUnit(unit) {
+        currentUnit = unit;
+        document.getElementById('unitSheetBtn').classList.toggle('active', unit === 'sheet');
+        document.getElementById('unitShareBtn').classList.toggle('active', unit === 'share');
+        
+        let qtyInput = document.getElementById('qty');
+        let dayBtn = document.getElementById('taxDayBtn');
+
+        if (unit === 'share') {
+            qtyInput.value = 100;
+            // 零股不能當沖：禁用當沖按鈕
+            dayBtn.disabled = true;
+            if (currentTaxRate === 0.0015) {
+                setTax(0.003, document.getElementById('taxNormalBtn'));
+            }
+        } else {
+            qtyInput.value = 1;
+            dayBtn.disabled = false;
+        }
+        qtyInput.select();
+        calculate();
     }
 
-    document.getElementById("shares").addEventListener("change", function() {
-        var customShares = document.getElementById("customShares");
-        if (this.value === "custom") {
-            customShares.style.display = "block";
+    function setDiscount(val, btn) {
+        document.querySelectorAll('#discountGroup .segmented-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        let customInput = document.getElementById('customDiscount');
+        if (val === 'custom') {
+            customInput.style.display = 'block';
+            customInput.focus();
+            currentDiscount = parseFloat(customInput.value) || 10;
         } else {
-            customShares.style.display = "none";
+            customInput.style.display = 'none';
+            currentDiscount = val;
+            localStorage.setItem('tw_discount', val);
         }
-    });
+        calculate();
+    }
 
-    // 取得台股跳動單位 (Tick Size)
+    function setTax(rate, btn) {
+        document.querySelectorAll('#taxGroup .segmented-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTaxRate = rate;
+        calculate();
+    }
+
+    // 台股跳動檔位
     function getNextTick(price) {
         price = parseFloat(price.toFixed(2));
-        if (price < 10) return price + 0.01;
-        if (price < 50) return price + 0.05;
-        if (price < 100) return price + 0.10;
-        if (price < 500) return price + 0.50;
-        if (price < 1000) return price + 1.00;
-        return price + 5.00;
+        if (price < 10) return parseFloat((price + 0.01).toFixed(2));
+        if (price < 50) return parseFloat((price + 0.05).toFixed(2));
+        if (price < 100) return parseFloat((price + 0.10).toFixed(2));
+        if (price < 500) return parseFloat((price + 0.50).toFixed(2));
+        if (price < 1000) return parseFloat((price + 1.00).toFixed(2));
+        return parseFloat((price + 5.00).toFixed(2));
     }
 
     function calculate() {
-        let buyPrice = parseFloat(document.getElementById("buyPrice").value);
-        if (isNaN(buyPrice) || buyPrice <= 0) {
-            alert("請輸入正確的買入股價！");
-            return;
+        let buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
+        let qtyNum = parseInt(document.getElementById('qty').value) || 0;
+        let totalShares = currentUnit === 'sheet' ? qtyNum * 1000 : qtyNum;
+        
+        let minFee = parseInt(document.getElementById('minFee').value) || 0;
+        localStorage.setItem('tw_minFee', minFee);
+
+        // 折數處理
+        let disc = currentDiscount;
+        if (document.getElementById('customDiscount').style.display === 'block') {
+            disc = parseFloat(document.getElementById('customDiscount').value) || 10;
+        }
+        
+        let feeRate = 0.001425 * (disc / 10);
+
+        // 買進費用計算 (0折則完全免手續費)
+        let buyBase = Math.round(buyPrice * totalShares);
+        let buyFee = (disc === 0) ? 0 : Math.max(minFee, Math.floor(buyBase * feeRate));
+        let totalBuyCost = buyBase + buyFee;
+
+        document.getElementById('totalBuyCostText').innerText = totalBuyCost.toLocaleString() + ' 元';
+        document.getElementById('buyFeeText').innerText = buyFee.toLocaleString() + ' 元';
+
+        if (buyPrice <= 0 || totalShares <= 0) return;
+
+        // 計算保本與跳檔階梯
+        let currentSell = buyPrice;
+        let breakevenPrice = 0;
+        let ladderData = [];
+
+        // 搜尋保本價位
+        while (true) {
+            currentSell = getNextTick(currentSell);
+            let sellBase = Math.round(currentSell * totalShares);
+            let sellFee = (disc === 0) ? 0 : Math.max(minFee, Math.floor(sellBase * feeRate));
+            let sellTax = Math.floor(sellBase * currentTaxRate);
+            let netRevenue = sellBase - sellFee - sellTax;
+            let profit = netRevenue - totalBuyCost;
+
+            if (profit > 0 && breakevenPrice === 0) {
+                breakevenPrice = currentSell;
+                // 找到保本價後，記錄保本價及後續 3 個檔位
+                ladderData.push({ price: currentSell, profit: profit, roi: (profit / totalBuyCost * 100).toFixed(2), label: '保本' });
+                
+                let tempPrice = currentSell;
+                for (let i = 1; i <= 3; i++) {
+                    tempPrice = getNextTick(tempPrice);
+                    let sBase = Math.round(tempPrice * totalShares);
+                    let sFee = (disc === 0) ? 0 : Math.max(minFee, Math.floor(sBase * feeRate));
+                    let sTax = Math.floor(sBase * currentTaxRate);
+                    let p = (sBase - sFee - sTax) - totalBuyCost;
+                    ladderData.push({ price: tempPrice, profit: p, roi: (p / totalBuyCost * 100).toFixed(2), label: `+${i} 檔` });
+                }
+                break;
+            }
+            if (currentSell > buyPrice * 3) break; // 安全機制
         }
 
-        // 取得股數
-        let sharesSelect = document.getElementById("shares").value;
-        let qty = sharesSelect === "custom" ? parseInt(document.getElementById("customShares").value) : 1000;
+        document.getElementById('breakevenPriceText').innerText = breakevenPrice.toFixed(2) + ' 元';
 
-        // 取得折數
-        let discountSelect = document.getElementById("discount").value;
-        let discount = discountSelect === "custom" ? parseFloat(document.getElementById("customDiscount").value) : parseFloat(discountSelect);
-        if (isNaN(discount)) discount = 10; // 預設無折扣
-
-        let minFee = parseInt(document.getElementById("minFee").value);
-        let taxRate = parseFloat(document.getElementById("taxRate").value);
-        let feeRate = 0.001425 * (discount / 10); // 計算實際手續費率
-
-        // 計算買進成本
-        let buyCostBase = Math.round(buyPrice * qty);
-        let buyFee = Math.max(minFee, Math.floor(buyCostBase * feeRate)); // 台股手續費通常無條件捨去至整數
-        let totalBuyCost = buyCostBase + buyFee;
-
-        // 尋找獲利賣價 (模擬跳動檔位)
-        let sellPrice = buyPrice;
-        let profit = -1;
-        let totalSellRevenue = 0;
-        let sellFee = 0;
-        let sellTax = 0;
-
-        // 不斷往上加一個 Tick，直到扣除成本後大於 0
-        while (profit <= 0) {
-            sellPrice = getNextTick(sellPrice);
-            
-            let sellRevenueBase = Math.round(sellPrice * qty);
-            sellFee = Math.max(minFee, Math.floor(sellRevenueBase * feeRate));
-            sellTax = Math.floor(sellRevenueBase * taxRate); // 證交稅無條件捨去
-            
-            totalSellRevenue = sellRevenueBase - sellFee - sellTax;
-            profit = totalSellRevenue - totalBuyCost;
-            
-            // 安全機制，避免無窮迴圈
-            if (sellPrice > buyPrice * 5) break; 
-        }
-
-        // 顯示結果
-        let resultBox = document.getElementById("resultBox");
-        resultBox.style.display = "block";
-        resultBox.innerHTML = `
-            買入總成本：${totalBuyCost.toLocaleString()} 元<br>
-            (含手續費 ${buyFee} 元)<br><br>
-            最低獲利賣價：<span class="highlight">${sellPrice.toFixed(2)}</span> 元<br>
-            賣出總淨收：${totalSellRevenue.toLocaleString()} 元<br>
-            (已扣手續費 ${sellFee} 元, 交易稅 ${sellTax} 元)<br><br>
-            跳檔賣出淨賺：<span style="color:red; font-weight:bold;">${profit.toLocaleString()}</span> 元
-        `;
+        // 渲染階梯表
+        let tbody = document.getElementById('ladderTableBody');
+        tbody.innerHTML = '';
+        ladderData.forEach((row, idx) => {
+            let tr = document.createElement('tr');
+            if (idx === 0) tr.className = 'highlight-row';
+            tr.innerHTML = `
+                <td class="text-left">${row.price.toFixed(2)} 元 <small style="color:#888;">(${row.label})</small></td>
+                <td style="color: ${row.profit > 0 ? '#d9534f' : '#333'}; font-weight: bold;">+${row.profit.toLocaleString()} 元</td>
+                <td style="color: ${row.profit > 0 ? '#d9534f' : '#333'};">+${row.roi}%</td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
 </script>
-
 </body>
 </html>
