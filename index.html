@@ -569,7 +569,6 @@
         });
     }
 
-    /* 通用清除按鈕邏輯 */
     function checkClearBtn(inputId) {
         let inputEl = document.getElementById(inputId);
         let btnEl = document.getElementById('clear_' + inputId);
@@ -833,7 +832,9 @@
                 rows.push({ p: currentSell, gain: profit, roi: (profit / totalBuyCost * 100).toFixed(2), label: '保本' });
                 
                 let temp = currentSell;
-                for (let i = 1; i <= 3; i++) {
+
+                /* 改為顯示到 +5 檔 */
+                for (let i = 1; i <= 5; i++) {
                     temp = getNextTick(temp);
                     let sBase = Math.round(temp * totalShares);
                     let sFee = (currentDiscount === 0) ? 0 : Math.max(minFee, Math.floor(sBase * feeRate));
