@@ -161,65 +161,6 @@
             gap: 4px;
         }
 
-        /* 搜尋輸入框 + ✕ 清除按鈕容器 */
-        .search-input-wrapper {
-            position: relative;
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-input-wrapper input {
-            width: 100%;
-            padding: 4px 22px 4px 6px;
-            font-size: 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        .search-input-wrapper input:focus {
-            border-color: var(--primary);
-        }
-
-        .clear-btn {
-            position: absolute;
-            right: 6px;
-            cursor: pointer;
-            color: #94a3b8;
-            font-size: 12px;
-            font-weight: bold;
-            display: none;
-            user-select: none;
-            line-height: 1;
-        }
-
-        .clear-btn:hover {
-            color: #475569;
-        }
-
-        .stock-search-btn {
-            background: #64748b;
-            color: #fff;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .stock-search-btn:hover {
-            background: #475569;
-        }
-
-        .stock-status {
-            font-size: 10.5px;
-            color: #64748b;
-            margin-top: 3px;
-            min-height: 14px;
-        }
-
         /* 主要表單區塊 */
         .form-group {
             margin-bottom: 10px;
@@ -233,7 +174,9 @@
             color: #333;
         }
 
+        /* 帶單位/按鈕輸入框通用外層 */
         .input-wrapper {
+            position: relative;
             display: flex;
             align-items: center;
             border: 1px solid var(--border);
@@ -247,7 +190,7 @@
             border: none !important;
             border-radius: 0 !important;
             flex: 1;
-            padding: 8px 10px;
+            padding: 8px 8px 8px 10px;
             font-size: 16px;
             box-sizing: border-box;
             outline: none;
@@ -256,6 +199,22 @@
 
         .input-wrapper:focus-within {
             border-color: var(--primary);
+        }
+
+        /* 通用 ✕ 清除按鈕 */
+        .clear-btn {
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+            user-select: none;
+            line-height: 1;
+            padding: 4px 6px;
+        }
+
+        .clear-btn:hover {
+            color: #475569;
         }
 
         .input-unit {
@@ -307,24 +266,33 @@
 
         .seg-btn:disabled { opacity: 0.35; }
 
+        .stock-search-btn {
+            background: #64748b;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .stock-search-btn:hover {
+            background: #475569;
+        }
+
+        .stock-status {
+            font-size: 10.5px;
+            color: #64748b;
+            margin-top: 3px;
+            min-height: 14px;
+        }
+
         .result-box {
             margin-top: 10px;
             background: #f8f9fa;
             border: 1px solid #e2e6ea;
             border-radius: 8px;
             padding: 12px;
-        }
-
-        .result-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #1e293b;
-            margin-bottom: 8px;
-            padding-bottom: 4px;
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
         .summary-row {
@@ -391,7 +359,6 @@
 <body>
 
 <div class="calc-card">
-    <!-- 主標題與副標題 -->
     <div class="header-group">
         <div class="main-title">📈 台股損益平衡計算機</div>
         <div class="sub-title">買進後賣多少才賺？</div>
@@ -410,9 +377,9 @@
                 </div>
                 <div class="stock-chips" id="stockChips"></div>
                 <div class="stock-search-box">
-                    <div class="search-input-wrapper">
-                        <input type="text" id="symbolInput" list="stockList" placeholder="輸入代號或公司名稱 (如: 2330 或 台積電)" onfocus="this.select()" oninput="handleSymbolInput(this.value)" onkeypress="if(event.key==='Enter') searchCustomStock()">
-                        <span class="clear-btn" id="clearSymbolBtn" onclick="clearSymbolInput()">✕</span>
+                    <div class="input-wrapper" style="flex: 1;">
+                        <input type="text" id="symbolInput" list="stockList" placeholder="輸入代號或公司名稱 (如: 2330 或 台積電)" onfocus="this.select()" oninput="handleInputWithClear('symbolInput', handleSymbolInput)" onkeypress="if(event.key==='Enter') searchCustomStock()">
+                        <span class="clear-btn" id="clear_symbolInput" onclick="clearInput('symbolInput', clearSymbolStatus)">✕</span>
                     </div>
                     <datalist id="stockList"></datalist>
                     <button type="button" class="stock-search-btn" onclick="searchCustomStock()">查詢價格</button>
@@ -420,19 +387,23 @@
                 <div class="stock-status" id="stockStatus"></div>
             </div>
 
+            <!-- 買入股價 -->
             <div class="form-group">
                 <label for="buyPrice">買入股價</label>
                 <div class="input-wrapper">
-                    <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
+                    <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="handleInputWithClear('buyPrice')">
+                    <span class="clear-btn" id="clear_buyPrice" onclick="clearInput('buyPrice')">✕</span>
                     <span class="input-unit">元</span>
                 </div>
             </div>
 
+            <!-- 買入數量 -->
             <div class="form-group">
                 <label>買入數量</label>
                 <div style="display: flex; gap: 6px;">
                     <div class="input-wrapper" style="flex: 1;">
-                        <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
+                        <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="handleInputWithClear('qty')">
+                        <span class="clear-btn" id="clear_qty" onclick="clearInput('qty')">✕</span>
                     </div>
                     <div class="seg-group" style="width: 100px;">
                         <button type="button" class="seg-btn active" id="btnSheet" onclick="setUnit('sheet')">張</button>
@@ -441,7 +412,7 @@
                 </div>
             </div>
 
-            <!-- 券商折數 (已刪除0折，保留5個選項：1.68折、2折、2.5折、2.8折、6折) -->
+            <!-- 券商手續費折數 -->
             <div class="form-group">
                 <label>券商手續費折數</label>
                 <div class="seg-group" id="discountGroup">
@@ -452,19 +423,23 @@
                     <button type="button" class="seg-btn" onclick="setDiscount(6, this)">6折</button>
                 </div>
                 <div class="input-wrapper custom-discount">
-                    <input type="number" id="customDiscount" placeholder="輸入折數 (如 2.5)" step="0.01" onfocus="this.select()" oninput="onCustomDiscountInput()">
+                    <input type="number" id="customDiscount" placeholder="輸入折數 (如 2.5)" step="0.01" onfocus="this.select()" oninput="handleCustomDiscountInput()">
+                    <span class="clear-btn" id="clear_customDiscount" onclick="clearInput('customDiscount', onCustomDiscountInput)">✕</span>
                     <span class="input-unit">折</span>
                 </div>
             </div>
 
+            <!-- 手續費低消 -->
             <div class="form-group">
                 <label for="minFee">手續費低消</label>
                 <div class="input-wrapper">
-                    <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
+                    <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="handleInputWithClear('minFee')">
+                    <span class="clear-btn" id="clear_minFee" onclick="clearInput('minFee')">✕</span>
                     <span class="input-unit">元</span>
                 </div>
             </div>
 
+            <!-- 交易類型 -->
             <div class="form-group">
                 <label>交易類型 (交易稅)</label>
                 <div class="seg-group" id="taxGroup">
@@ -479,8 +454,6 @@
         <div class="result-section">
             <div class="result-box">
                 <div>
-                    <div class="result-title">⚖️ 損益平衡計算機</div>
-
                     <div class="summary-row">
                         <span>買入總成本：</span>
                         <span><b id="totalCost" style="color:#111;">0</b> 元</span>
@@ -533,6 +506,7 @@
     ];
 
     const knownDiscounts = [1.68, 2, 2.5, 2.8, 6];
+    const allInputIds = ['symbolInput', 'buyPrice', 'qty', 'customDiscount', 'minFee'];
 
     let currentUnit = 'sheet';
     let currentDiscount = 2.8;
@@ -562,6 +536,8 @@
         if (localStorage.getItem('tw_minFee')) {
             document.getElementById('minFee').value = localStorage.getItem('tw_minFee');
         }
+
+        allInputIds.forEach(id => checkClearBtn(id));
         calculate();
     };
 
@@ -593,32 +569,55 @@
         });
     }
 
-    /* 處理輸入框：顯示/隱藏 ✕ 按鈕與自動比對帶入 */
-    function handleSymbolInput(val) {
-        let clearBtn = document.getElementById('clearSymbolBtn');
-        if (val.trim().length > 0) {
-            clearBtn.style.display = 'block';
+    /* 通用清除按鈕邏輯 */
+    function checkClearBtn(inputId) {
+        let inputEl = document.getElementById(inputId);
+        let btnEl = document.getElementById('clear_' + inputId);
+        if (!inputEl || !btnEl) return;
+        if (inputEl.value.toString().trim().length > 0) {
+            btnEl.style.display = 'block';
         } else {
-            clearBtn.style.display = 'none';
+            btnEl.style.display = 'none';
         }
+    }
 
+    function handleInputWithClear(inputId, callback) {
+        checkClearBtn(inputId);
+        if (callback) callback(document.getElementById(inputId).value);
+        calculate();
+    }
+
+    function handleCustomDiscountInput() {
+        checkClearBtn('customDiscount');
+        onCustomDiscountInput();
+    }
+
+    function clearInput(inputId, callback) {
+        let inputEl = document.getElementById(inputId);
+        let btnEl = document.getElementById('clear_' + inputId);
+        if (inputEl) {
+            inputEl.value = '';
+            if (btnEl) btnEl.style.display = 'none';
+            inputEl.focus();
+        }
+        if (callback) {
+            callback();
+        } else {
+            calculate();
+        }
+    }
+
+    function clearSymbolStatus() {
+        document.getElementById('stockStatus').innerHTML = '';
+        calculate();
+    }
+
+    function handleSymbolInput(val) {
         val = val.trim();
         let match = val.match(/^(\d+[A-Za-z]?)/);
         if (match && (stockData[match[1]] || stockPool.some(s => s.code === match[1]))) {
             selectStock(match[1]);
         }
-    }
-
-    /* 一鍵清除搜尋框文字 */
-    function clearSymbolInput() {
-        let inputEl = document.getElementById('symbolInput');
-        let clearBtn = document.getElementById('clearSymbolBtn');
-        let statusEl = document.getElementById('stockStatus');
-        
-        inputEl.value = '';
-        clearBtn.style.display = 'none';
-        statusEl.innerHTML = '';
-        inputEl.focus();
     }
 
     function drawGachaStock() {
@@ -664,23 +663,24 @@
     function selectStock(code, fallbackName) {
         let statusEl = document.getElementById('stockStatus');
         let inputEl = document.getElementById('symbolInput');
-        let clearBtn = document.getElementById('clearSymbolBtn');
         
         let target = stockData[code];
         let name = target ? target.n : (stockPool.find(s=>s.code===code)?.name || fallbackName || code);
         inputEl.value = `${code} ${name}`;
-        clearBtn.style.display = 'block';
+        checkClearBtn('symbolInput');
 
         let dateStr = updatedAt ? updatedAt.split(' ')[0] : '';
         let dateTag = dateStr ? `[${dateStr}] ` : '';
 
         if (target) {
             document.getElementById('buyPrice').value = target.p;
+            checkClearBtn('buyPrice');
             statusEl.innerHTML = `<span style="color:#28a745;">已帶入 <b>${code} ${target.n}</b> ${dateTag}收盤價：<b>${target.p}</b> 元</span>`;
         } else {
             let poolItem = stockPool.find(s => s.code === code);
             if (poolItem && poolItem.p) {
                 document.getElementById('buyPrice').value = poolItem.p;
+                checkClearBtn('buyPrice');
                 statusEl.innerHTML = `<span style="color:#28a745;">已帶入 <b>${code} ${poolItem.name}</b> 參考價：<b>${poolItem.p}</b> 元</span>`;
             } else {
                 statusEl.innerHTML = `<span style="color:#d9534f;">尚未收錄代號 ${code}，請手動輸入股價。</span>`;
@@ -744,6 +744,7 @@
             qtyInput.value = 1;
             dayBtn.disabled = false;
         }
+        checkClearBtn('qty');
         qtyInput.select();
         calculate();
     }
@@ -753,6 +754,7 @@
         if (btn) btn.classList.add('active');
         
         document.getElementById('customDiscount').value = val;
+        checkClearBtn('customDiscount');
         currentDiscount = val;
         localStorage.setItem('tw_discount', val);
         calculate();
@@ -809,7 +811,11 @@
         document.getElementById('totalCost').innerText = totalBuyCost.toLocaleString();
         document.getElementById('buyFee').innerText = buyFee.toLocaleString();
 
-        if (buyPrice <= 0 || totalShares <= 0) return;
+        if (buyPrice <= 0 || totalShares <= 0) {
+            document.getElementById('breakevenPrice').innerText = "0.00";
+            document.getElementById('ladderBody').innerHTML = '';
+            return;
+        }
 
         let currentSell = buyPrice;
         let breakevenPrice = 0;
