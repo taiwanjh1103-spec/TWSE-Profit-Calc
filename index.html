@@ -185,7 +185,6 @@
             color: #333;
         }
 
-        /* 帶單位輸入框樣式 (Input Group with Unit Addon) */
         .input-wrapper {
             display: flex;
             align-items: center;
@@ -263,6 +262,18 @@
             border: 1px solid #e2e6ea;
             border-radius: 8px;
             padding: 12px;
+        }
+
+        .result-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .summary-row {
@@ -344,13 +355,12 @@
                 </div>
                 <div class="stock-chips" id="stockChips"></div>
                 <div class="stock-search-box">
-                    <input type="text" id="symbolInput" placeholder="輸入股票代號 (如: 2330)" onfocus="this.select()">
+                    <input type="text" id="symbolInput" placeholder="輸入代號或公司名稱 (如: 2330 或 台積電)" onfocus="this.select()" onkeypress="if(event.key==='Enter') searchCustomStock()">
                     <button type="button" class="stock-search-btn" onclick="searchCustomStock()">查詢價格</button>
                 </div>
-                <div class="stock-status" id="stockStatus">提示：點擊標籤或抽股票帶入最新價格</div>
+                <div class="stock-status" id="stockStatus"></div>
             </div>
 
-            <!-- 買入股價 (附帶單位：元) -->
             <div class="form-group">
                 <label for="buyPrice">買入股價</label>
                 <div class="input-wrapper">
@@ -359,7 +369,6 @@
                 </div>
             </div>
 
-            <!-- 買入數量 -->
             <div class="form-group">
                 <label>買入數量</label>
                 <div style="display: flex; gap: 6px;">
@@ -373,7 +382,6 @@
                 </div>
             </div>
 
-            <!-- 券商折數 (附帶單位：折) -->
             <div class="form-group">
                 <label>券商手續費折數</label>
                 <div class="seg-group" id="discountGroup">
@@ -388,7 +396,6 @@
                 </div>
             </div>
 
-            <!-- 手續費低消 (附帶單位：元) -->
             <div class="form-group">
                 <label for="minFee">手續費低消</label>
                 <div class="input-wrapper">
@@ -397,7 +404,6 @@
                 </div>
             </div>
 
-            <!-- 交易類型 -->
             <div class="form-group">
                 <label>交易類型 (交易稅)</label>
                 <div class="seg-group" id="taxGroup">
@@ -412,6 +418,9 @@
         <div class="result-section">
             <div class="result-box">
                 <div>
+                    <!-- 新增標題：損益平衡計算機 -->
+                    <div class="result-title">⚖️ 損益平衡計算機</div>
+
                     <div class="summary-row">
                         <span>買入總成本：</span>
                         <span><b id="totalCost" style="color:#111;">0</b> 元</span>
@@ -498,18 +507,14 @@
     };
 
     async function loadStockJson() {
-        let statusEl = document.getElementById('stockStatus');
         try {
             let res = await fetch('./stocks.json');
             if(!res.ok) throw new Error();
             let data = await res.json();
             stockData = data.stocks || {};
             updatedAt = data.updated_at || '';
-            let dateStr = updatedAt ? updatedAt.split(' ')[0] : '';
-            statusEl.innerText = `提示：全台股資料庫已就緒 (${dateStr})`;
-        } catch (e) {
-            statusEl.innerText = `提示：點擊標籤帶入參考價，或輸入代號查價`;
-        }
+            // 不在畫面上顯示「提示：全台股資料庫已就緒」
+        } catch (e) {}
     }
 
     function drawGachaStock() {
@@ -583,9 +588,39 @@
         calculate();
     }
 
+    // 搜尋功能升級：支援「股票代號」與「公司名稱」搜尋
     function searchCustomStock() {
         let val = document.getElementById('symbolInput').value.trim();
-        if (val) selectStock(val, val);
+        if (!val) return;
+
+        let statusEl = document.getElementById('stockStatus');
+
+        // 1. 若為代號，精確比對
+        if (stockData[val]) {
+            selectStock(val);
+            return;
+        }
+
+        // 2. 名稱比對 (stockData)
+        let foundCode = Object.keys(stockData).find(code => {
+            let name = stockData[code].n;
+            return name === val || name.includes(val);
+        });
+
+        if (foundCode) {
+            selectStock(foundCode);
+            return;
+        }
+
+        // 3. 名稱/代號比對 (stockPool 備援庫)
+        let poolItem = stockPool.find(s => s.code === val || s.name === val || s.name.includes(val));
+        if (poolItem) {
+            selectStock(poolItem.code);
+            return;
+        }
+
+        // 4. 無匹配結果
+        statusEl.innerHTML = `<span style="color:#d9534f;">查無 「${val}」 相關股票或收盤價，請手動輸入股價。</span>`;
     }
 
     function setUnit(unit) {
