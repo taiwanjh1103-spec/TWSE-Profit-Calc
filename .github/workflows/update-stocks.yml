@@ -2,7 +2,6 @@ name: Auto Update Stock Data
 
 on:
   schedule:
-    # 台灣時間週一至週五 15:30 (UTC 07:30) 自動執行
     - cron: '30 7 * * 1-5'
   workflow_dispatch:
 

@@ -5,7 +5,6 @@ from datetime import datetime
 def update_stocks():
     stocks = {}
 
-    # 1. 抓取證交所 (上市) 每日行情
     try:
         twse_url = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL'
         req = urllib.request.Request(twse_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -23,7 +22,6 @@ def update_stocks():
     except Exception as e:
         print(f"TWSE Fetch Error: {e}")
 
-    # 2. 抓取櫃買中心 (上櫃) 每日行情
     try:
         tpex_url = 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes'
         req = urllib.request.Request(tpex_url, headers={'User-Agent': 'Mozilla/5.0'})
