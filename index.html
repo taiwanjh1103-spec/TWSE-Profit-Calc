@@ -72,7 +72,7 @@
             }
         }
 
-        /* 熱門股票區塊 (視覺弱化與微型化) */
+        /* 熱門股票區塊 */
         .stock-section {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -99,7 +99,6 @@
             gap: 4px;
         }
 
-        /* 低調按鈕樣式 */
         .subtle-btn {
             background: #ffffff;
             border: 1px solid #cbd5e1;
@@ -186,23 +185,44 @@
             color: #333;
         }
 
-        .input-group {
+        /* 帶單位輸入框樣式 (Input Group with Unit Addon) */
+        .input-wrapper {
             display: flex;
-            gap: 6px;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 8px 10px;
+            align-items: center;
             border: 1px solid var(--border);
             border-radius: 6px;
+            background: #ffffff;
+            overflow: hidden;
+            transition: border-color 0.15s;
+        }
+
+        .input-wrapper input {
+            border: none !important;
+            border-radius: 0 !important;
+            flex: 1;
+            padding: 8px 10px;
             font-size: 16px;
             box-sizing: border-box;
             outline: none;
+            width: 100%;
         }
 
-        input[type="number"]:focus {
+        .input-wrapper:focus-within {
             border-color: var(--primary);
+        }
+
+        .input-unit {
+            padding: 0 10px;
+            font-size: 13px;
+            color: #475569;
+            background: #f8fafc;
+            border-left: 1px solid #e2e8f0;
+            align-self: stretch;
+            display: flex;
+            align-items: center;
+            user-select: none;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
         .custom-discount {
@@ -314,7 +334,6 @@
     <div class="calc-body">
         <!-- 輸入設定區 -->
         <div class="input-section">
-            <!-- 弱化非核心功能：熱門股票區塊 -->
             <div class="stock-section">
                 <div class="stock-header">
                     <span class="stock-title">熱門股票</span>
@@ -331,15 +350,22 @@
                 <div class="stock-status" id="stockStatus">提示：點擊標籤或抽股票帶入最新價格</div>
             </div>
 
+            <!-- 買入股價 (附帶單位：元) -->
             <div class="form-group">
-                <label for="buyPrice">買入股價 (元)</label>
-                <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
+                <label for="buyPrice">買入股價</label>
+                <div class="input-wrapper">
+                    <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
+                    <span class="input-unit">元</span>
+                </div>
             </div>
 
+            <!-- 買入數量 -->
             <div class="form-group">
                 <label>買入數量</label>
-                <div class="input-group">
-                    <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
+                <div style="display: flex; gap: 6px;">
+                    <div class="input-wrapper" style="flex: 1;">
+                        <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
+                    </div>
                     <div class="seg-group" style="width: 100px;">
                         <button type="button" class="seg-btn active" id="btnSheet" onclick="setUnit('sheet')">張</button>
                         <button type="button" class="seg-btn" id="btnShare" onclick="setUnit('share')">股</button>
@@ -347,6 +373,7 @@
                 </div>
             </div>
 
+            <!-- 券商折數 (附帶單位：折) -->
             <div class="form-group">
                 <label>券商手續費折數</label>
                 <div class="seg-group" id="discountGroup">
@@ -355,14 +382,22 @@
                     <button type="button" class="seg-btn active" onclick="setDiscount(2.8, this)">2.8折</button>
                     <button type="button" class="seg-btn" onclick="setDiscount(6, this)">6折</button>
                 </div>
-                <input type="number" id="customDiscount" class="custom-discount" placeholder="或自行輸入折數 (如 2.5)" step="0.01" onfocus="this.select()" oninput="onCustomDiscountInput()">
+                <div class="input-wrapper custom-discount">
+                    <input type="number" id="customDiscount" placeholder="輸入折數 (如 2.5)" step="0.01" onfocus="this.select()" oninput="onCustomDiscountInput()">
+                    <span class="input-unit">折</span>
+                </div>
             </div>
 
+            <!-- 手續費低消 (附帶單位：元) -->
             <div class="form-group">
-                <label for="minFee">手續費低消 (元)</label>
-                <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
+                <label for="minFee">手續費低消</label>
+                <div class="input-wrapper">
+                    <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
+                    <span class="input-unit">元</span>
+                </div>
             </div>
 
+            <!-- 交易類型 -->
             <div class="form-group">
                 <label>交易類型 (交易稅)</label>
                 <div class="seg-group" id="taxGroup">
@@ -573,7 +608,6 @@
         calculate();
     }
 
-    // 折數選擇：同步填入下方的數字輸入框
     function setDiscount(val, btn) {
         document.querySelectorAll('#discountGroup .seg-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
@@ -584,7 +618,6 @@
         calculate();
     }
 
-    // 輸入框手動輸入：自動與上方快捷按鈕比對並亮燈
     function onCustomDiscountInput() {
         let val = parseFloat(document.getElementById('customDiscount').value);
         let btns = document.querySelectorAll('#discountGroup .seg-btn');
