@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台股賣出獲利計算機</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .calculator {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .custom-discount {
+            display: none;
+            margin-top: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .highlight {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>台股賣出獲利計算機</h2>
+    
+    <div class="form-group">
+        <label>買入股價 (元)</label>
+        <input type="number" id="buyPrice" step="0.01" placeholder="例如: 50.5" required>
+    </div>
+
+    <div class="form-group">
+        <label>買入股數</label>
+        <select id="shares">
+            <option value="1000">1張 (1000股)</option>
+            <option value="custom">自訂零股股數</option>
+        </select>
+        <input type="number" id="customShares" class="custom-discount" placeholder="輸入股數 (1~999)" value="100">
+    </div>
+
+    <div class="form-group">
+        <label>券商手續費折數</label>
+        <select id="discount" onchange="toggleCustomDiscount()">
+            <option value="1.68">1.68 折</option>
+            <option value="2">2 折</option>
+            <option value="2.5">2.5 折</option>
+            <option value="2.8" selected>2.8 折</option>
+            <option value="3">3 折</option>
+            <option value="3.5">3.5 折</option>
+            <option value="6">6 折</option>
+            <option value="10">無折扣 (10折)</option>
+            <option value="custom">自行輸入折數...</option>
+        </select>
+        <input type="number" id="customDiscount" class="custom-discount" step="0.01" placeholder="例如: 1.5">
+    </div>
+
+    <div class="form-group">
+        <label>券商低消 (元)</label>
+        <input type="number" id="minFee" value="20" title="大部分券商為20元，部分為1元">
+    </div>
+    
+    <div class="form-group">
+        <label>交易稅率</label>
+        <select id="taxRate">
+            <option value="0.003">一般股票 (0.3%)</option>
+            <option value="0.0015">現股當沖 (0.15%)</option>
+            <option value="0.001">ETF (0.1%)</option>
+        </select>
+    </div>
+
+    <button onclick="calculate()">計算最低獲利賣價</button>
+
+    <div id="resultBox" class="result" style="display:none;"></div>
+</div>
+
+<script>
+    function toggleCustomDiscount() {
+        var discountSelect = document.getElementById("discount");
+        var customInput = document.getElementById("customDiscount");
+        if (discountSelect.value === "custom") {
+            customInput.style.display = "block";
+        } else {
+            customInput.style.display = "none";
+        }
+    }
+
+    document.getElementById("shares").addEventListener("change", function() {
+        var customShares = document.getElementById("customShares");
+        if (this.value === "custom") {
+            customShares.style.display = "block";
+        } else {
+            customShares.style.display = "none";
+        }
+    });
+
+    // 取得台股跳動單位 (Tick Size)
+    function getNextTick(price) {
+        price = parseFloat(price.toFixed(2));
+        if (price < 10) return price + 0.01;
+        if (price < 50) return price + 0.05;
+        if (price < 100) return price + 0.10;
+        if (price < 500) return price + 0.50;
+        if (price < 1000) return price + 1.00;
+        return price + 5.00;
+    }
+
+    function calculate() {
+        let buyPrice = parseFloat(document.getElementById("buyPrice").value);
+        if (isNaN(buyPrice) || buyPrice <= 0) {
+            alert("請輸入正確的買入股價！");
+            return;
+        }
+
+        // 取得股數
+        let sharesSelect = document.getElementById("shares").value;
+        let qty = sharesSelect === "custom" ? parseInt(document.getElementById("customShares").value) : 1000;
+
+        // 取得折數
+        let discountSelect = document.getElementById("discount").value;
+        let discount = discountSelect === "custom" ? parseFloat(document.getElementById("customDiscount").value) : parseFloat(discountSelect);
+        if (isNaN(discount)) discount = 10; // 預設無折扣
+
+        let minFee = parseInt(document.getElementById("minFee").value);
+        let taxRate = parseFloat(document.getElementById("taxRate").value);
+        let feeRate = 0.001425 * (discount / 10); // 計算實際手續費率
+
+        // 計算買進成本
+        let buyCostBase = Math.round(buyPrice * qty);
+        let buyFee = Math.max(minFee, Math.floor(buyCostBase * feeRate)); // 台股手續費通常無條件捨去至整數
+        let totalBuyCost = buyCostBase + buyFee;
+
+        // 尋找獲利賣價 (模擬跳動檔位)
+        let sellPrice = buyPrice;
+        let profit = -1;
+        let totalSellRevenue = 0;
+        let sellFee = 0;
+        let sellTax = 0;
+
+        // 不斷往上加一個 Tick，直到扣除成本後大於 0
+        while (profit <= 0) {
+            sellPrice = getNextTick(sellPrice);
+            
+            let sellRevenueBase = Math.round(sellPrice * qty);
+            sellFee = Math.max(minFee, Math.floor(sellRevenueBase * feeRate));
+            sellTax = Math.floor(sellRevenueBase * taxRate); // 證交稅無條件捨去
+            
+            totalSellRevenue = sellRevenueBase - sellFee - sellTax;
+            profit = totalSellRevenue - totalBuyCost;
+            
+            // 安全機制，避免無窮迴圈
+            if (sellPrice > buyPrice * 5) break; 
+        }
+
+        // 顯示結果
+        let resultBox = document.getElementById("resultBox");
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `
+            買入總成本：${totalBuyCost.toLocaleString()} 元<br>
+            (含手續費 ${buyFee} 元)<br><br>
+            最低獲利賣價：<span class="highlight">${sellPrice.toFixed(2)}</span> 元<br>
+            賣出總淨收：${totalSellRevenue.toLocaleString()} 元<br>
+            (已扣手續費 ${sellFee} 元, 交易稅 ${sellTax} 元)<br><br>
+            跳檔賣出淨賺：<span style="color:red; font-weight:bold;">${profit.toLocaleString()}</span> 元
+        `;
+    }
+</script>
+
+</body>
+</html>
