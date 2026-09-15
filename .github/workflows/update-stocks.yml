@@ -1,0 +1,32 @@
+name: Auto Update Stock Data
+
+on:
+  schedule:
+    # 台灣時間週一至週五 15:30 (UTC 07:30) 自動執行
+    - cron: '30 7 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Fetch Latest Stock Data
+        run: python update_stocks.py
+
+      - name: Commit and Push if changed
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add stocks.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto update stock data [skip ci]" && git push)
