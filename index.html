@@ -7,65 +7,131 @@
     <style>
         :root {
             --primary: #007bff;
-            --bg: #ecefe;
+            --bg: #f4f6f8;
             --card-bg: #ffffff;
             --profit: #d9534f;
-            --border: #dcdcdc;
+            --border: #cccccc;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background-color: #f4f6f8;
+            background-color: var(--bg);
             margin: 0;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             justify-content: center;
         }
 
         .calc-card {
             background: var(--card-bg);
-            padding: 16px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
         }
 
         .title {
-            font-size: 17px;
+            font-size: 19px;
             font-weight: bold;
             text-align: center;
-            margin: 0 0 12px 0;
-            color: #222;
+            margin: 0 0 16px 0;
+            color: #111;
         }
 
-        /* 雙欄併排網格 */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 8px;
+        /* 股票搜尋與熱門推薦區塊 */
+        .stock-section {
+            background: #f0f4f8;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
         }
 
-        .form-item {
+        .stock-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .stock-chips {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            gap: 6px;
             margin-bottom: 8px;
+        }
+
+        .chip {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #334155;
+        }
+
+        .chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .stock-search-box {
+            display: flex;
+            gap: 6px;
+        }
+
+        .stock-search-box input {
+            flex: 1;
+            padding: 6px 10px;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .stock-search-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .stock-status {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 5px;
+            min-height: 16px;
+        }
+
+        /* 單欄表單區 */
+        .form-group {
+            margin-bottom: 12px;
         }
 
         label {
-            font-size: 12px;
+            display: block;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 4px;
-            color: #666;
+            margin-bottom: 5px;
+            color: #444;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
         }
 
         input[type="number"] {
             width: 100%;
-            padding: 6px 8px;
+            padding: 9px 11px;
             border: 1px solid var(--border);
-            border-radius: 5px;
-            font-size: 15px;
+            border-radius: 6px;
+            font-size: 16px;
             box-sizing: border-box;
             outline: none;
         }
@@ -74,54 +140,25 @@
             border-color: var(--primary);
         }
 
-        /* 數量 + 單位組合框 */
-        .qty-group {
-            display: flex;
-            gap: 4px;
+        .custom-discount {
+            margin-top: 6px;
         }
 
-        .unit-toggle {
-            display: flex;
-            background: #e9ecef;
-            padding: 2px;
-            border-radius: 5px;
-            width: 75px;
-            flex-shrink: 0;
-        }
-
-        .unit-btn {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-size: 11px;
-            border-radius: 3px;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .unit-btn.active {
-            background: #fff;
-            font-weight: bold;
-            color: var(--primary);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        /* 緊湊按鈕組 */
         .seg-group {
             display: flex;
             background: #e9ecef;
-            padding: 2px;
-            border-radius: 5px;
-            gap: 2px;
+            padding: 3px;
+            border-radius: 6px;
+            gap: 3px;
         }
 
         .seg-btn {
             flex: 1;
-            padding: 5px 2px;
+            padding: 8px 4px;
             border: none;
             background: transparent;
-            font-size: 12px;
-            border-radius: 3px;
+            font-size: 13px;
+            border-radius: 4px;
             cursor: pointer;
             text-align: center;
             white-space: nowrap;
@@ -131,7 +168,7 @@
             background: #fff;
             font-weight: bold;
             color: var(--primary);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
 
         .seg-btn:disabled {
@@ -139,62 +176,74 @@
             cursor: not-allowed;
         }
 
-        /* 即時結果資訊卡 */
-        .result-card {
-            margin-top: 10px;
+        /* 計算結果 */
+        .result-box {
+            margin-top: 16px;
             background: #f8f9fa;
-            border: 1px solid #e3e6e8;
-            border-radius: 6px;
-            padding: 10px 12px;
+            border: 1px solid #e2e6ea;
+            border-radius: 8px;
+            padding: 14px;
         }
 
-        .result-main {
+        .summary-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed #ccc;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 6px;
         }
 
-        .result-meta {
-            font-size: 12px;
+        .breakeven-container {
+            text-align: center;
+            margin: 10px 0 8px 0;
+            padding-top: 8px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .breakeven-label {
+            font-size: 13px;
             color: #666;
-            line-height: 1.4;
         }
 
-        .target-price {
-            text-align: right;
-        }
-
-        .target-price .price {
-            font-size: 22px;
+        .breakeven-price {
+            font-size: 26px;
             font-weight: bold;
             color: var(--profit);
-            line-height: 1;
         }
 
-        /* 精簡表格 */
-        .tight-table {
+        .ladder-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 6px;
-            font-size: 12px;
+            margin-top: 8px;
+            font-size: 13px;
         }
 
-        .tight-table th, .tight-table td {
-            padding: 4px 2px;
+        .ladder-table th, .ladder-table td {
+            padding: 5px 4px;
             text-align: right;
         }
 
-        .tight-table th {
-            color: #888;
+        .ladder-table th {
+            color: #777;
             font-weight: normal;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #e9ecef;
         }
 
-        .tight-table tr.active-row {
+        .ladder-table tr.active-row {
             color: var(--profit);
             font-weight: bold;
+            background-color: #fff1f1;
+        }
+
+        /* 頁尾免責聲明 */
+        .disclaimer {
+            margin-top: 16px;
+            font-size: 11px;
+            color: #888888;
+            text-align: center;
+            line-height: 1.5;
+            border-top: 1px solid #eeeeee;
+            padding-top: 10px;
         }
     </style>
 </head>
@@ -203,49 +252,62 @@
 <div class="calc-card">
     <div class="title">台股買進後賣多少才賺？</div>
 
-    <!-- 併排列 1：股價 + 數量 -->
-    <div class="grid-2">
-        <div class="form-item">
-            <label for="buyPrice">買入股價 (元)</label>
-            <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
+    <!-- 熱門股票與即時股價連動 -->
+    <div class="stock-section">
+        <div class="stock-title">熱門股票快選 (點擊帶入現價)</div>
+        <div class="stock-chips">
+            <button type="button" class="chip" onclick="fetchStock('2330')">台積電 2330</button>
+            <button type="button" class="chip" onclick="fetchStock('2317')">鴻海 2317</button>
+            <button type="button" class="chip" onclick="fetchStock('2454')">聯發科 2454</button>
+            <button type="button" class="chip" onclick="fetchStock('0050')">0050</button>
+            <button type="button" class="chip" onclick="fetchStock('0056')">0056</button>
+            <button type="button" class="chip" onclick="fetchStock('00878')">00878</button>
         </div>
-        <div class="form-item">
-            <label>買入數量</label>
-            <div class="qty-group">
-                <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
-                <div class="unit-toggle">
-                    <button type="button" class="unit-btn active" id="btnSheet" onclick="setUnit('sheet')">張</button>
-                    <button type="button" class="unit-btn" id="btnShare" onclick="setUnit('share')">股</button>
-                </div>
+        <div class="stock-search-box">
+            <input type="text" id="symbolInput" placeholder="輸入股票代號 (如: 2330)" onfocus="this.select()">
+            <button type="button" class="stock-search-btn" onclick="searchCustomStock()">查詢價格</button>
+        </div>
+        <div class="stock-status" id="stockStatus">提示：點擊上方股票可自動帶入現價</div>
+    </div>
+
+    <!-- 買入股價 -->
+    <div class="form-group">
+        <label for="buyPrice">買入股價 (元)</label>
+        <input type="number" id="buyPrice" step="0.01" value="50" onfocus="this.select()" oninput="calculate()">
+    </div>
+
+    <!-- 買入數量 -->
+    <div class="form-group">
+        <label>買入數量</label>
+        <div class="input-group">
+            <input type="number" id="qty" value="1" min="1" onfocus="this.select()" oninput="calculate()">
+            <div class="seg-group" style="width: 110px;">
+                <button type="button" class="seg-btn active" id="btnSheet" onclick="setUnit('sheet')">張</button>
+                <button type="button" class="seg-btn" id="btnShare" onclick="setUnit('share')">股</button>
             </div>
         </div>
     </div>
 
-    <!-- 併排列 2：手續費折數 + 低消 -->
-    <div class="grid-2">
-        <div class="form-item">
-            <label>券商低消 (元)</label>
-            <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
-        </div>
-        <div class="form-item">
-            <label>自訂折數 (非必填)</label>
-            <input type="number" id="customDiscount" placeholder="如 2.5" step="0.01" onfocus="this.select()" oninput="onCustomDiscountInput()">
-        </div>
-    </div>
-
-    <!-- 快捷折數切換 -->
-    <div class="form-item">
-        <label>快捷折數</label>
+    <!-- 券商折數 -->
+    <div class="form-group">
+        <label>券商手續費折數</label>
         <div class="seg-group" id="discountGroup">
             <button type="button" class="seg-btn" onclick="setDiscount(0, this)">0折(免)</button>
             <button type="button" class="seg-btn" onclick="setDiscount(1.68, this)">1.68折</button>
             <button type="button" class="seg-btn active" onclick="setDiscount(2.8, this)">2.8折</button>
             <button type="button" class="seg-btn" onclick="setDiscount(6, this)">6折</button>
         </div>
+        <input type="number" id="customDiscount" class="custom-discount" placeholder="或自行輸入折數 (如 2.5)" step="0.01" onfocus="this.select()" oninput="onCustomDiscountInput()">
     </div>
 
-    <!-- 交易類型切換 -->
-    <div class="form-item" style="margin-bottom: 4px;">
+    <!-- 手續費低消 -->
+    <div class="form-group">
+        <label for="minFee">手續費低消 (元)</label>
+        <input type="number" id="minFee" value="20" onfocus="this.select()" oninput="calculate()">
+    </div>
+
+    <!-- 交易類型 -->
+    <div class="form-group">
         <label>交易類型 (交易稅)</label>
         <div class="seg-group" id="taxGroup">
             <button type="button" class="seg-btn active" id="taxNormal" onclick="setTax(0.003, this)">一般 (0.3%)</button>
@@ -254,21 +316,24 @@
         </div>
     </div>
 
-    <!-- 緊湊型計算結果 -->
-    <div class="result-card">
-        <div class="result-main">
-            <div class="result-meta">
-                買入總成本：<b id="totalCost" style="color:#111;">0</b> 元<br>
-                (含手續費 <span id="buyFee">0</span> 元)
-            </div>
-            <div class="target-price">
-                <div style="font-size: 11px; color: #777;">保本最低賣價</div>
-                <div class="price" id="breakevenPrice">0.00</div>
-            </div>
+    <!-- 計算結果 -->
+    <div class="result-box">
+        <div class="summary-row">
+            <span>買入總成本：</span>
+            <span><b id="totalCost" style="color:#111;">0</b> 元</span>
+        </div>
+        <div class="summary-row">
+            <span>買入手續費：</span>
+            <span><span id="buyFee">0</span> 元</span>
         </div>
 
-        <!-- 檔位預覽表 -->
-        <table class="tight-table">
+        <div class="breakeven-container">
+            <div class="breakeven-label">保本最低賣價</div>
+            <div class="breakeven-price"><span id="breakevenPrice">0.00</span> 元</div>
+        </div>
+
+        <!-- 檔位表格 -->
+        <table class="ladder-table">
             <thead>
                 <tr>
                     <th style="text-align: left;">賣出價位</th>
@@ -278,6 +343,11 @@
             </thead>
             <tbody id="ladderBody"></tbody>
         </table>
+    </div>
+
+    <!-- 頁尾免責聲明 -->
+    <div class="disclaimer">
+        免責聲明：本工具計算結果僅供參考，實際交易費用以各大證券商與台灣證券交易所最新規範為準。本網站不保證資訊之即時性與精確性，亦不構成任何形式之投資建議或買賣指示。
     </div>
 </div>
 
@@ -303,6 +373,72 @@
         }
         calculate();
     };
+
+    // 串接 Yahoo 財經抓取台股即時價格 (使用 CORS Proxy)
+    async function fetchStock(symbol) {
+        let statusEl = document.getElementById('stockStatus');
+        statusEl.innerText = `正在抓取 ${symbol} 最新股價...`;
+        
+        let formattedSymbol = symbol.trim();
+        if(!formattedSymbol.endsWith('.TW') && !formattedSymbol.endsWith('.TWO')) {
+            formattedSymbol += '.TW'; // 預設上市股票
+        }
+
+        let targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${formattedSymbol}?interval=1d`;
+        let proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+        try {
+            let response = await fetch(proxyUrl);
+            let data = await response.json();
+            let parsedData = JSON.parse(data.contents);
+            
+            let result = parsedData.chart.result[0];
+            let price = result.meta.regularMarketPrice;
+            let stockName = result.meta.shortName || symbol;
+
+            if (price) {
+                document.getElementById('buyPrice').value = price;
+                statusEl.innerHTML = `<span style="color:#28a745;">已帶入 ${stockName} 現價：<b>${price}</b> 元</span>`;
+                
+                // 自動依類型切換 ETF
+                if(symbol.startsWith('00')) {
+                    setTax(0.001, document.getElementById('taxEtf'));
+                } else if(currentTaxRate === 0.001) {
+                    setTax(0.003, document.getElementById('taxNormal'));
+                }
+                
+                calculate();
+            } else {
+                throw new Error('未找到價格');
+            }
+        } catch (err) {
+            // 如果 上市(.TW) 失敗，嘗試 上櫃(.TWO)
+            if(formattedSymbol.endsWith('.TW')) {
+                let altSymbol = symbol.trim() + '.TWO';
+                let altTargetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${altSymbol}?interval=1d`;
+                let altProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(altTargetUrl)}`;
+                try {
+                    let res2 = await fetch(altProxyUrl);
+                    let data2 = await res2.json();
+                    let parsed2 = JSON.parse(data2.contents);
+                    let price2 = parsed2.chart.result[0].meta.regularMarketPrice;
+                    let name2 = parsed2.chart.result[0].meta.shortName || symbol;
+                    if(price2) {
+                        document.getElementById('buyPrice').value = price2;
+                        statusEl.innerHTML = `<span style="color:#28a745;">已帶入 ${name2} (上櫃) 現價：<b>${price2}</b> 元</span>`;
+                        calculate();
+                        return;
+                    }
+                } catch(e) {}
+            }
+            statusEl.innerHTML = `<span style="color:#d9534f;">無法抓取 ${symbol} 股價，請手動輸入。</span>`;
+        }
+    }
+
+    function searchCustomStock() {
+        let val = document.getElementById('symbolInput').value.trim();
+        if(val) fetchStock(val);
+    }
 
     function setUnit(unit) {
         currentUnit = unit;
@@ -414,7 +550,7 @@
             let tr = document.createElement('tr');
             if (idx === 0) tr.className = 'active-row';
             tr.innerHTML = `
-                <td style="text-align: left;">${r.p.toFixed(2)} <span style="font-size:10px; color:#999;">(${r.label})</span></td>
+                <td style="text-align: left;">${r.p.toFixed(2)} 元 <span style="font-size:11px; color:#888;">(${r.label})</span></td>
                 <td>+${r.gain.toLocaleString()} 元</td>
                 <td>+${r.roi}%</td>
             `;
